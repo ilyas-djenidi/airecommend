@@ -51,6 +51,36 @@ app.include_router(composition_router, tags=["Composition Analysis"])
 from app.api.sngid import router as sngid_router
 app.include_router(sngid_router)
 
+# New Algerian Context Routers
+from app.api.auth import router as auth_router
+app.include_router(auth_router)
+
+from app.api.routes import router as routes_router
+app.include_router(routes_router)
+
+from app.api.tracking import router as tracking_router
+app.include_router(tracking_router)
+
+from app.api.waste import router as waste_router
+app.include_router(waste_router)
+
+from app.api.municipal import router as municipal_router
+app.include_router(municipal_router)
+
+# Supabase CRUD APIs
+from app.api.zones import router as zones_router
+app.include_router(zones_router)
+
+from app.api.containers import router as containers_router
+app.include_router(containers_router)
+
+from app.api.collectors import router as collectors_router
+app.include_router(collectors_router)
+
+# Maps & Visualization API
+from app.api.maps import router as maps_router
+app.include_router(maps_router)
+
 @app.post("/optimize-day", response_model=OptimizationResponse)
 def optimize_day(request: OptimizationRequest):
     logger.info(f"Received optimization request for {request.date} with {len(request.containers)} containers")

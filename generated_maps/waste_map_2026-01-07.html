@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_37643ac33e3304b7b9fc67b70e1bba2e {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium@main/folium/templates/leaflet_heat.min.js"></script>
+</head>
+<body>
+    
+    
+        <div style="
+            position: fixed;
+            bottom: 50px; right: 50px;
+            width: 200px;
+            background-color: white;
+            border: 2px solid grey;
+            z-index: 9999;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        ">
+        <h4 style="margin-top: 0;">Legend</h4>
+        
+            <p style="margin: 5px 0;">
+                <i style="background:#dc2626;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                Critical Priority (0)
+            </p>
+            
+            <p style="margin: 5px 0;">
+                <i style="background:#ea580c;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                High Priority (1)
+            </p>
+            
+            <p style="margin: 5px 0;">
+                <i style="background:#2563eb;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                Medium Priority (1)
+            </p>
+            
+            <p style="margin: 5px 0;">
+                <i style="background:#16a34a;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                Low Priority (0)
+            </p>
+            </div>
+    
+            <div class="folium-map" id="map_37643ac33e3304b7b9fc67b70e1bba2e" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_37643ac33e3304b7b9fc67b70e1bba2e = L.map(
+                "map_37643ac33e3304b7b9fc67b70e1bba2e",
+                {
+                    center: [36.7538, 3.0588],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "maxBounds": [
+[
+-90,
+-180,
+],
+[
+90,
+180,
+],
+],
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": true,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+
+            
+
+        
+    
+            var tile_layer_6913edbfa4d3e06a978986b99124c1b6 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "\u0026copy; OpenStreetMap",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_6913edbfa4d3e06a978986b99124c1b6.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+        
+    
+            var tile_layer_4095e20d2b37a74fdacdcf56f07e3cdc = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "\u0026copy; ESRI",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_4095e20d2b37a74fdacdcf56f07e3cdc.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+        
+    
+            L.control.fullscreen(
+                {
+  "position": "topleft",
+  "title": "Full Screen",
+  "titleCancel": "Exit Full Screen",
+  "forceSeparateButton": true,
+}
+            ).addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+        
+    
+            var measure_control_636df31842ee3ff5c687bce073154b8a = new L.Control.Measure(
+                {
+  "position": "topleft",
+  "primaryLengthUnit": "kilometers",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "square kilometers",
+  "secondaryAreaUnit": "acres",
+});
+            map_37643ac33e3304b7b9fc67b70e1bba2e.addControl(measure_control_636df31842ee3ff5c687bce073154b8a);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var feature_group_36e9a7c4e5f0d96c9c9455d15d205a20 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_36e9a7c4e5f0d96c9c9455d15d205a20.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+        
+    
+            var marker_cluster_50133a47f6031015e53c413592e1c8d0 = L.markerClusterGroup(
+                {
+}
+            );
+            marker_cluster_50133a47f6031015e53c413592e1c8d0.options.iconCreateFunction =
+                function(cluster) {
+                    var count = cluster.getChildCount();
+                    var size = count < 10 ? 'small' : count < 50 ? 'medium' : 'large';
+                    return L.divIcon({
+                        html: '<div><span>' + count + '</span></div>',
+                        className: 'marker-cluster marker-cluster-' + size,
+                        iconSize: L.point(40, 40)
+                    });
+                };
+        
+    
+            var marker_b0ea35e4e0e67f49b44bce35252503b2 = L.marker(
+                [36.75, 3.05],
+                {
+}
+            ).addTo(marker_cluster_50133a47f6031015e53c413592e1c8d0);
+        
+    
+            var icon_4b781bb38e9821c8fc6a56839962951f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c878f0ce23f6d2391920c602dbc85c24 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ab1c67128153ddbb92e043e1dcff2c79 = $(`<div id="html_ab1c67128153ddbb92e043e1dcff2c79" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>ss</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_c878f0ce23f6d2391920c602dbc85c24.setContent(html_ab1c67128153ddbb92e043e1dcff2c79);
+            
+        
+
+        marker_b0ea35e4e0e67f49b44bce35252503b2.bindPopup(popup_c878f0ce23f6d2391920c602dbc85c24)
+        ;
+
+        
+    
+    
+            marker_b0ea35e4e0e67f49b44bce35252503b2.bindTooltip(
+                `<div>
+                     Container ss (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b0ea35e4e0e67f49b44bce35252503b2.setIcon(icon_4b781bb38e9821c8fc6a56839962951f);
+            
+    
+            var marker_20ad9b1874c63dc4617794ecbd289fb3 = L.marker(
+                [36.75, 3.05],
+                {
+}
+            ).addTo(marker_cluster_50133a47f6031015e53c413592e1c8d0);
+        
+    
+            var icon_6c949318f30aa371690af31e98762d55 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c7066a3e7e0bff386c693d9fc8e1e6d4 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e4dad86684c3ef15b0d3b46c205dee67 = $(`<div id="html_e4dad86684c3ef15b0d3b46c205dee67" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>rrrrrrr</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> HIGH</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_c7066a3e7e0bff386c693d9fc8e1e6d4.setContent(html_e4dad86684c3ef15b0d3b46c205dee67);
+            
+        
+
+        marker_20ad9b1874c63dc4617794ecbd289fb3.bindPopup(popup_c7066a3e7e0bff386c693d9fc8e1e6d4)
+        ;
+
+        
+    
+    
+            marker_20ad9b1874c63dc4617794ecbd289fb3.bindTooltip(
+                `<div>
+                     Container rrrrrrr (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_20ad9b1874c63dc4617794ecbd289fb3.setIcon(icon_6c949318f30aa371690af31e98762d55);
+            
+    
+            marker_cluster_50133a47f6031015e53c413592e1c8d0.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+        
+    
+            var heat_map_e5e755ee3a8e78acc9cd7e8479421e44 = L.heatLayer(
+                [[36.75, 3.05, 0.0], [36.75, 3.05, 0.0]],
+                {
+  "minOpacity": 0.3,
+  "maxZoom": 13,
+  "radius": 25,
+  "blur": 15,
+  "gradient": {
+  0.0: "blue",
+  0.3: "cyan",
+  0.5: "lime",
+  0.7: "yellow",
+  1.0: "red",
+},
+}
+            );
+        
+    
+            heat_map_e5e755ee3a8e78acc9cd7e8479421e44.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+        
+    
+            var layer_control_ed8d687ace726a96a3db91b16abbe27c_layers = {
+                base_layers : {
+                    "Street Map" : tile_layer_6913edbfa4d3e06a978986b99124c1b6,
+                    "Satellite" : tile_layer_4095e20d2b37a74fdacdcf56f07e3cdc,
+                },
+                overlays :  {
+                    "Zones (\u0645\u0646\u0627\u0637\u0642 \u0627\u0644\u062c\u0645\u0639)" : feature_group_36e9a7c4e5f0d96c9c9455d15d205a20,
+                    "Containers (\u062d\u0627\u0648\u064a\u0627\u062a \u0627\u0644\u0646\u0641\u0627\u064a\u0627\u062a)" : marker_cluster_50133a47f6031015e53c413592e1c8d0,
+                    "WPI Heatmap (\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0636\u063a\u0637)" : heat_map_e5e755ee3a8e78acc9cd7e8479421e44,
+                },
+            };
+            let layer_control_ed8d687ace726a96a3db91b16abbe27c = L.control.layers(
+                layer_control_ed8d687ace726a96a3db91b16abbe27c_layers.base_layers,
+                layer_control_ed8d687ace726a96a3db91b16abbe27c_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+
+        
+</script>
+</html>

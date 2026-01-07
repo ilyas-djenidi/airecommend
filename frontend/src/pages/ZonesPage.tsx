@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../store';
 import { Button, Input, Card } from '../components/ui';
-import { Zone, ZoneCategory, PriorityLabel, Container } from '../models';
-import { Trash2, MapPin, Plus, Box } from 'lucide-react';
+import { ZoneCategory, PriorityLabel, Container } from '../models';
+import { Trash2, MapPin, Plus, Box, Database, RefreshCw } from 'lucide-react';
+import { zonesApi, containersApi, checkDatabaseAvailability, syncZonesToDatabase } from '../services/supabaseApi';
 
 export function ZonesPage() {
     const store = useStore();
@@ -12,29 +13,83 @@ export function ZonesPage() {
     const [priority, setPriority] = useState<PriorityLabel>('MEDIUM');
     const [notes, setNotes] = useState('');
 
+    // Database state
+    const [dbAvailable, setDbAvailable] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
+
     // Container Form State
     const [activeZoneForContainer, setActiveZoneForContainer] = useState<string | null>(null);
     const [contId, setContId] = useState('');
     const [contLat, setContLat] = useState('36.75');
     const [contLng, setContLng] = useState('3.05');
-    const [contType, setContType] = useState<any>('bac_a_ordures');
+    const [contType] = useState<any>('bac_a_ordures');
     const [contPrio, setContPrio] = useState<PriorityLabel>('MEDIUM');
 
-    const addZone = () => {
+    // Load zones from database on mount
+    useEffect(() => {
+        const loadZones = async () => {
+            try {
+                const available = await checkDatabaseAvailability();
+                setDbAvailable(available);
+
+                if (available) {
+                    setLoading(true);
+                    const zones = await zonesApi.list();
+
+                    // Load containers for each zone
+                    const zonesWithContainers = await Promise.all(
+                        zones.map(async (zone: any) => {
+                            const containers = await containersApi.list(zone.id);
+                            return { ...zone, containers };
+                        })
+                    );
+
+                    // Update store
+                    store.setZones(zonesWithContainers);
+                }
+            } catch (error) {
+                console.error('Failed to load zones:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadZones();
+    }, []);
+
+    const addZone = async () => {
         if (!id || !name) return;
-        store.addZone({
+
+        const newZone = {
             id, name, category, priority, notes,
-            containers: []
-        });
-        // Default Schedule: Service every day for new manual zones to ensure they appear
+            containers: [],
+            priority_score: priority === 'CRITICAL' ? 5 : priority === 'HIGH' ? 4 : priority === 'MEDIUM' ? 3 : 2
+        };
+
+        // Add to local store
+        store.addZone(newZone);
+
+        // Default Schedule
         store.addSchedule({
             zone_id: id,
             service_days: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']
         });
+
+        // Sync to database
+        if (dbAvailable) {
+            try {
+                await zonesApi.create(newZone);
+            } catch (error) {
+                console.error('Failed to save zone to database:', error);
+                alert('Zone saved locally but failed to sync to database');
+            }
+        }
+
         setId(''); setName(''); setNotes('');
     };
 
-    const addContainer = (zoneId: string) => {
+    const addContainer = async (zoneId: string) => {
         if (!contId) return;
         const newContainer: Container = {
             id: contId,
@@ -44,12 +99,95 @@ export function ZonesPage() {
             priority: contPrio,
             zone_id: zoneId
         };
+
+        // Add to local store
         store.addContainerToZone(zoneId, newContainer);
+
+        // Sync to database
+        if (dbAvailable) {
+            try {
+                // Ensure zone exists in DB first
+                const zone = store.zones.find(z => z.id === zoneId);
+                if (zone) {
+                    await zonesApi.create({
+                        id: zone.id,
+                        name: zone.name,
+                        category: zone.category,
+                        priority: zone.priority,
+                        priority_score: zone.priority_score || 3
+                    }).catch(() => {
+                        // Ignore if zone already exists
+                    });
+                }
+
+                await containersApi.create(newContainer);
+            } catch (error) {
+                console.error('Failed to save container to database:', error);
+                // We'll show a more helpful message
+                console.info('Individual sync failed, but data is saved locally and can be synced globally.');
+            }
+        }
+
         setContId(''); // Clear ID but keep lat/lng for convenience
+    };
+
+    const removeZone = async (zoneId: string) => {
+        store.removeZone(zoneId);
+
+        if (dbAvailable) {
+            try {
+                await zonesApi.delete(zoneId);
+            } catch (error) {
+                console.error('Failed to delete zone from database:', error);
+            }
+        }
+    };
+
+    const syncToDatabase = async () => {
+        if (!dbAvailable) {
+            alert('Database not available');
+            return;
+        }
+
+        setSyncing(true);
+        try {
+            await syncZonesToDatabase(store.zones);
+            alert('Data synced successfully!');
+        } catch (error) {
+            console.error('Sync failed:', error);
+            alert('Sync failed - check console for details');
+        } finally {
+            setSyncing(false);
+        }
     };
 
     return (
         <div className="space-y-8">
+            {/* DATABASE STATUS BANNER */}
+            <div className={`p-3 rounded-lg border text-sm flex items-center justify-between ${dbAvailable ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                }`}>
+                <div className="flex items-center gap-2">
+                    <Database size={16} />
+                    <span>
+                        {loading ? 'Loading zones from database...' :
+                            dbAvailable ? `Database connected (${store.zones.length} zones loaded)` :
+                                'Database unavailable - using local storage only'}
+                    </span>
+                </div>
+                {dbAvailable && store.zones.length > 0 && (
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={syncToDatabase}
+                        disabled={syncing}
+                        className="text-xs h-7"
+                    >
+                        <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+                        {syncing ? 'Syncing...' : 'Sync to DB'}
+                    </Button>
+                )}
+            </div>
+
             {/* ADD ZONE FORM */}
             <Card className="p-6 bg-slate-50 border-slate-200">
                 <h3 className="font-bold text-lg mb-4 text-slate-700">Add New Zone</h3>
@@ -116,7 +254,7 @@ export function ZonesPage() {
                             </div>
                             <Button
                                 variant="secondary"
-                                onClick={() => store.removeZone(zone.id)}
+                                onClick={() => removeZone(zone.id)}
                                 className="text-red-500 hover:bg-red-50"
                             >
                                 <Trash2 size={16} />

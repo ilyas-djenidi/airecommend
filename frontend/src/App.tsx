@@ -6,6 +6,9 @@ import { PlannerPage } from './pages/PlannerPage'
 
 import { CollectorDashboard } from './pages/CollectorDashboard'
 import { AIInsightsPage } from './pages/AIInsightsPage';
+import { MapsPage } from './pages/MapsPage';
+
+import { OperationsMap } from './components/visualization/OperationsMap'
 
 function App() {
     return (
@@ -17,6 +20,8 @@ function App() {
                     <Route path="/output" element={<PlannerPage />} />
                     <Route path="/collector" element={<CollectorDashboard />} />
                     <Route path="/ai-insights" element={<AIInsightsPage />} />
+                    <Route path="/maps" element={<MapsPage />} />
+                    <Route path="/map-ia" element={<OperationsMap />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             </Layout>

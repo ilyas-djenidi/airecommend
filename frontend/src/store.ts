@@ -1,13 +1,30 @@
-import { useState, useEffect } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Zone, BaselineSchedule, FleetResources, CalendarEvent, SeasonalConfig, Container } from './models';
 
-const STORAGE_KEYS = {
-    ZONES: 'ar_zones',
-    SCHEDULE: 'ar_schedule',
-    RESOURCES: 'ar_resources',
-    EVENTS: 'ar_events',
-    SEASONS: 'ar_seasons'
-};
+interface WasteStore {
+    zones: Zone[];
+    schedule: BaselineSchedule[];
+    resources: FleetResources;
+    events: CalendarEvent[];
+    seasons: SeasonalConfig;
+
+    // Actions
+    setZones: (zones: Zone[]) => void;
+    addZone: (zone: Zone) => void;
+    removeZone: (id: string) => void;
+
+    setSchedule: (schedule: BaselineSchedule[]) => void;
+    addSchedule: (sched: BaselineSchedule) => void;
+
+    setResources: (resources: FleetResources) => void;
+
+    setEvents: (events: CalendarEvent[]) => void;
+
+    setSeasons: (seasons: SeasonalConfig) => void;
+
+    addContainerToZone: (zoneId: string, container: Container) => void;
+}
 
 const DEFAULT_RESOURCES: FleetResources = {
     daily_collectors: 10,
@@ -21,57 +38,40 @@ const DEFAULT_SEASONS: SeasonalConfig = {
     is_school_period: true
 };
 
-export function usePersistentState<T>(key: string, initialValue: T) {
-    const [state, setState] = useState<T>(() => {
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : initialValue;
-    });
+export const useStore = create<WasteStore>()(
+    persist(
+        (set) => ({
+            zones: [],
+            schedule: [],
+            resources: DEFAULT_RESOURCES,
+            events: [],
+            seasons: DEFAULT_SEASONS,
 
-    useEffect(() => {
-        localStorage.setItem(key, JSON.stringify(state));
-    }, [key, state]);
+            setZones: (zones) => set({ zones }),
+            addZone: (zone) => set((state) => ({ zones: [...state.zones, zone] })),
+            removeZone: (id) => set((state) => ({ zones: state.zones.filter(z => z.id !== id) })),
 
-    return [state, setState] as const;
-}
+            setSchedule: (schedule) => set({ schedule }),
+            addSchedule: (sched) => set((state) => ({
+                schedule: [...state.schedule.filter(s => s.zone_id !== sched.zone_id), sched]
+            })),
 
-export function useStore() {
-    const [zones, setZones] = usePersistentState<Zone[]>(STORAGE_KEYS.ZONES, []);
-    const [schedule, setSchedule] = usePersistentState<BaselineSchedule[]>(STORAGE_KEYS.SCHEDULE, []);
-    const [resources, setResources] = usePersistentState<FleetResources>(STORAGE_KEYS.RESOURCES, DEFAULT_RESOURCES);
-    const [events, setEvents] = usePersistentState<CalendarEvent[]>(STORAGE_KEYS.EVENTS, []);
-    const [seasons, setSeasons] = usePersistentState<SeasonalConfig>(STORAGE_KEYS.SEASONS, DEFAULT_SEASONS);
+            setResources: (resources) => set({ resources }),
 
-    const addZone = (zone: Zone) => {
-        setZones(prev => [...prev, zone]);
-    };
+            setEvents: (events) => set({ events }),
 
-    const removeZone = (id: string) => {
-        setZones(prev => prev.filter(z => z.id !== id));
-    };
+            setSeasons: (seasons) => set({ seasons }),
 
-    const addSchedule = (sched: BaselineSchedule) => {
-        setSchedule(prev => [...prev.filter(s => s.zone_id !== sched.zone_id), sched]);
-    };
-
-    const addContainerToZone = (zoneId: string, container: Container) => {
-        setZones(prevZones =>
-            prevZones.map(zone =>
-                zone.id === zoneId
-                    ? { ...zone, containers: [...(zone.containers || []), container] }
-                    : zone
-            )
-        );
-    };
-
-    return {
-        zones, setZones,
-        schedule, setSchedule,
-        resources, setResources,
-        events, setEvents,
-        seasons, setSeasons,
-        addZone,
-        removeZone,
-        addSchedule,
-        addContainerToZone
-    };
-}
+            addContainerToZone: (zoneId, container) => set((state) => ({
+                zones: state.zones.map(zone =>
+                    zone.id === zoneId
+                        ? { ...zone, containers: [...(zone.containers || []), container] }
+                        : zone
+                )
+            })),
+        }),
+        {
+            name: 'waste-management-storage',
+        }
+    )
+);

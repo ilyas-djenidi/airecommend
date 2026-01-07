@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_430a120884978d6f835bd130b01294ed {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+</head>
+<body>
+    
+    
+        <div style="
+            position: fixed;
+            bottom: 50px; right: 50px;
+            width: 200px;
+            background-color: white;
+            border: 2px solid grey;
+            z-index: 9999;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        ">
+        <h4 style="margin-top: 0;">Legend</h4>
+        
+            <p style="margin: 5px 0;">
+                <i style="background:#dc2626;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                Critical Priority (0)
+            </p>
+            
+            <p style="margin: 5px 0;">
+                <i style="background:#ea580c;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                High Priority (0)
+            </p>
+            
+            <p style="margin: 5px 0;">
+                <i style="background:#2563eb;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                Medium Priority (0)
+            </p>
+            
+            <p style="margin: 5px 0;">
+                <i style="background:#16a34a;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
+                Low Priority (0)
+            </p>
+            </div>
+    
+            <div class="folium-map" id="map_430a120884978d6f835bd130b01294ed" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_430a120884978d6f835bd130b01294ed = L.map(
+                "map_430a120884978d6f835bd130b01294ed",
+                {
+                    center: [36.7538, 3.0588],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "maxBounds": [
+[
+-90,
+-180,
+],
+[
+90,
+180,
+],
+],
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": true,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_430a120884978d6f835bd130b01294ed);
+
+            
+
+        
+    
+            var tile_layer_13133cf3fe4631f037f277da62b523ff = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "\u0026copy; OpenStreetMap",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_13133cf3fe4631f037f277da62b523ff.addTo(map_430a120884978d6f835bd130b01294ed);
+        
+    
+            var tile_layer_285d425e7994c77fb01c7558b2a075c2 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "\u0026copy; ESRI",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_285d425e7994c77fb01c7558b2a075c2.addTo(map_430a120884978d6f835bd130b01294ed);
+        
+    
+            L.control.fullscreen(
+                {
+  "position": "topleft",
+  "title": "Full Screen",
+  "titleCancel": "Exit Full Screen",
+  "forceSeparateButton": true,
+}
+            ).addTo(map_430a120884978d6f835bd130b01294ed);
+        
+    
+            var measure_control_c86aa7899b2486b1a18da4d90384c8bf = new L.Control.Measure(
+                {
+  "position": "topleft",
+  "primaryLengthUnit": "kilometers",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "square kilometers",
+  "secondaryAreaUnit": "acres",
+});
+            map_430a120884978d6f835bd130b01294ed.addControl(measure_control_c86aa7899b2486b1a18da4d90384c8bf);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var feature_group_0c4df294fd4be96ed18821a3a2e5fe82 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_0c4df294fd4be96ed18821a3a2e5fe82.addTo(map_430a120884978d6f835bd130b01294ed);
+        
+    
+            var layer_control_49618cb209997938fb87a078b0136acf_layers = {
+                base_layers : {
+                    "Street Map" : tile_layer_13133cf3fe4631f037f277da62b523ff,
+                    "Satellite" : tile_layer_285d425e7994c77fb01c7558b2a075c2,
+                },
+                overlays :  {
+                    "Zones (\u0645\u0646\u0627\u0637\u0642 \u0627\u0644\u062c\u0645\u0639)" : feature_group_0c4df294fd4be96ed18821a3a2e5fe82,
+                },
+            };
+            let layer_control_49618cb209997938fb87a078b0136acf = L.control.layers(
+                layer_control_49618cb209997938fb87a078b0136acf_layers.base_layers,
+                layer_control_49618cb209997938fb87a078b0136acf_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_430a120884978d6f835bd130b01294ed);
+
+        
+</script>
+</html>

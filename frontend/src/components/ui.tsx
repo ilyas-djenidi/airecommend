@@ -6,17 +6,29 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' }>(
-    ({ className, variant = 'primary', ...props }, ref) => {
+export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: 'primary' | 'secondary' | 'danger',
+    size?: 'default' | 'sm'
+}>(
+    ({ className, variant = 'primary', size = 'default', ...props }, ref) => {
         const variants = {
             primary: "bg-blue-600 text-white hover:bg-blue-700",
             secondary: "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50",
             danger: "bg-red-500 text-white hover:bg-red-600"
         };
+        const sizes = {
+            default: "px-4 py-2 text-sm",
+            sm: "px-2 py-1 text-xs"
+        };
         return (
             <button
                 ref={ref}
-                className={cn("px-4 py-2 rounded-md transition-colors text-sm font-medium focus:ring-2 focus:ring-offset-1 disabled:opacity-50", variants[variant], className)}
+                className={cn(
+                    "rounded-md transition-colors font-medium focus:ring-2 focus:ring-offset-1 disabled:opacity-50",
+                    variants[variant],
+                    sizes[size],
+                    className
+                )}
                 {...props}
             />
         )

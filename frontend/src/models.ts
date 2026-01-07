@@ -24,6 +24,7 @@ export interface Zone {
     name: string;
     category: ZoneCategory;
     priority: PriorityLabel; // Zone-level default priority
+    priority_score?: number;
     market_day?: WeekDay;
     notes?: string;
     // Containers are now children of Zones in the input model

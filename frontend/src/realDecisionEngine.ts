@@ -42,6 +42,12 @@ export class RealDecisionEngine {
             containers
         };
 
+        console.log(`[RealDecisionEngine] Sending optimization request for ${startDateStr}:`, {
+            zonesCount: this.zones.length,
+            containersCount: containers.length,
+            collectorCount: collectors.length
+        });
+
         // 2. Call API
         try {
             const response = await api.optimizeDay(payload);
