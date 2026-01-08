@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_430a120884978d6f835bd130b01294ed {
+                #map_6b6462cdca62e1cc724a48dc6564a74f {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,6 +54,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
     <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium@main/folium/templates/leaflet_heat.min.js"></script>
 </head>
 <body>
     
@@ -74,17 +78,17 @@
         
             <p style="margin: 5px 0;">
                 <i style="background:#dc2626;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
-                Critical Priority (0)
+                Critical Priority (3)
             </p>
             
             <p style="margin: 5px 0;">
                 <i style="background:#ea580c;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
-                High Priority (0)
+                High Priority (1)
             </p>
             
             <p style="margin: 5px 0;">
                 <i style="background:#2563eb;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
-                Medium Priority (0)
+                Medium Priority (3)
             </p>
             
             <p style="margin: 5px 0;">
@@ -93,14 +97,14 @@
             </p>
             </div>
     
-            <div class="folium-map" id="map_430a120884978d6f835bd130b01294ed" ></div>
+            <div class="folium-map" id="map_6b6462cdca62e1cc724a48dc6564a74f" ></div>
         
 </body>
 <script>
     
     
-            var map_430a120884978d6f835bd130b01294ed = L.map(
-                "map_430a120884978d6f835bd130b01294ed",
+            var map_6b6462cdca62e1cc724a48dc6564a74f = L.map(
+                "map_6b6462cdca62e1cc724a48dc6564a74f",
                 {
                     center: [36.7538, 3.0588],
                     crs: L.CRS.EPSG3857,
@@ -122,13 +126,13 @@
 
                 }
             );
-            L.control.scale().addTo(map_430a120884978d6f835bd130b01294ed);
+            L.control.scale().addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
 
             
 
         
     
-            var tile_layer_13133cf3fe4631f037f277da62b523ff = L.tileLayer(
+            var tile_layer_f6dc26d5e54aa62a4db41cc143ea6860 = L.tileLayer(
                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -145,10 +149,10 @@
             );
         
     
-            tile_layer_13133cf3fe4631f037f277da62b523ff.addTo(map_430a120884978d6f835bd130b01294ed);
+            tile_layer_f6dc26d5e54aa62a4db41cc143ea6860.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
         
     
-            var tile_layer_285d425e7994c77fb01c7558b2a075c2 = L.tileLayer(
+            var tile_layer_89b329e7009561688fa4e02d06e4233c = L.tileLayer(
                 "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
                 {
   "minZoom": 0,
@@ -165,7 +169,7 @@
             );
         
     
-            tile_layer_285d425e7994c77fb01c7558b2a075c2.addTo(map_430a120884978d6f835bd130b01294ed);
+            tile_layer_89b329e7009561688fa4e02d06e4233c.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
         
     
             L.control.fullscreen(
@@ -175,10 +179,10 @@
   "titleCancel": "Exit Full Screen",
   "forceSeparateButton": true,
 }
-            ).addTo(map_430a120884978d6f835bd130b01294ed);
+            ).addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
         
     
-            var measure_control_c86aa7899b2486b1a18da4d90384c8bf = new L.Control.Measure(
+            var measure_control_d72a1e187267b66268b76dfacba9f2fe = new L.Control.Measure(
                 {
   "position": "topleft",
   "primaryLengthUnit": "kilometers",
@@ -186,7 +190,7 @@
   "primaryAreaUnit": "square kilometers",
   "secondaryAreaUnit": "acres",
 });
-            map_430a120884978d6f835bd130b01294ed.addControl(measure_control_c86aa7899b2486b1a18da4d90384c8bf);
+            map_6b6462cdca62e1cc724a48dc6564a74f.addControl(measure_control_d72a1e187267b66268b76dfacba9f2fe);
 
             // Workaround for using this plugin with Leaflet>=1.8.0
             // https://github.com/ljagis/leaflet-measure/issues/171
@@ -205,33 +209,431 @@
 
         
     
-            var feature_group_0c4df294fd4be96ed18821a3a2e5fe82 = L.featureGroup(
+            var feature_group_1174e0eb03a1937357f7493e41c1b7b9 = L.featureGroup(
                 {
 }
             );
         
     
-            feature_group_0c4df294fd4be96ed18821a3a2e5fe82.addTo(map_430a120884978d6f835bd130b01294ed);
+            feature_group_1174e0eb03a1937357f7493e41c1b7b9.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
         
     
-            var layer_control_49618cb209997938fb87a078b0136acf_layers = {
+            var marker_cluster_b5350bb2d8c9d5268af7e6407663cc35 = L.markerClusterGroup(
+                {
+}
+            );
+            marker_cluster_b5350bb2d8c9d5268af7e6407663cc35.options.iconCreateFunction =
+                function(cluster) {
+                    var count = cluster.getChildCount();
+                    var size = count < 10 ? 'small' : count < 50 ? 'medium' : 'large';
+                    return L.divIcon({
+                        html: '<div><span>' + count + '</span></div>',
+                        className: 'marker-cluster marker-cluster-' + size,
+                        iconSize: L.point(40, 40)
+                    });
+                };
+        
+    
+            var marker_606c06b38631c74411794c1502bb53ca = L.marker(
+                [36.75, 3.05],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_6f5332bdccaf83c3362574ca14b80ad8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_03eb7407f17436a4d6330e55513d2f57 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5ee6ab0aff4bf328675ab5f66e00afc3 = $(`<div id="html_5ee6ab0aff4bf328675ab5f66e00afc3" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>ss</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_03eb7407f17436a4d6330e55513d2f57.setContent(html_5ee6ab0aff4bf328675ab5f66e00afc3);
+            
+        
+
+        marker_606c06b38631c74411794c1502bb53ca.bindPopup(popup_03eb7407f17436a4d6330e55513d2f57)
+        ;
+
+        
+    
+    
+            marker_606c06b38631c74411794c1502bb53ca.bindTooltip(
+                `<div>
+                     Container ss (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_606c06b38631c74411794c1502bb53ca.setIcon(icon_6f5332bdccaf83c3362574ca14b80ad8);
+            
+    
+            var marker_54950ea41e2f0fffd67e130e0dbd9dfd = L.marker(
+                [36.75, 3.05],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_f4900afc077cb6b9c51366cef80284b7 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a4edd7ad2504a94f05b4833a9a181a35 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d2165e69cc270dd4ff012cf9b2b321a5 = $(`<div id="html_d2165e69cc270dd4ff012cf9b2b321a5" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>rrrrrrr</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> HIGH</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_a4edd7ad2504a94f05b4833a9a181a35.setContent(html_d2165e69cc270dd4ff012cf9b2b321a5);
+            
+        
+
+        marker_54950ea41e2f0fffd67e130e0dbd9dfd.bindPopup(popup_a4edd7ad2504a94f05b4833a9a181a35)
+        ;
+
+        
+    
+    
+            marker_54950ea41e2f0fffd67e130e0dbd9dfd.bindTooltip(
+                `<div>
+                     Container rrrrrrr (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_54950ea41e2f0fffd67e130e0dbd9dfd.setIcon(icon_f4900afc077cb6b9c51366cef80284b7);
+            
+    
+            var marker_4927534c38a52e2dd9a72039e2f7d6ac = L.marker(
+                [36.7204, 3.0873],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_f668153076fc81b1969fff9bfe9c0596 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_93ca4a5392a3594e96db1e3fc8337061 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bb80ab8c3c023b78f532c13e9ad7c261 = $(`<div id="html_bb80ab8c3c023b78f532c13e9ad7c261" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>vvvv</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> CRITICAL</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_93ca4a5392a3594e96db1e3fc8337061.setContent(html_bb80ab8c3c023b78f532c13e9ad7c261);
+            
+        
+
+        marker_4927534c38a52e2dd9a72039e2f7d6ac.bindPopup(popup_93ca4a5392a3594e96db1e3fc8337061)
+        ;
+
+        
+    
+    
+            marker_4927534c38a52e2dd9a72039e2f7d6ac.bindTooltip(
+                `<div>
+                     Container vvvv (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4927534c38a52e2dd9a72039e2f7d6ac.setIcon(icon_f668153076fc81b1969fff9bfe9c0596);
+            
+    
+            var marker_e6da31e54527b3309da24958abdd1a5c = L.marker(
+                [36.7538, 3.0588],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_f3440d5d2a587341f321d1789d1a142d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8c6941bc17066f52cb5d6cf0193f90c3 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2da55d3cf842654d3524d161eaa83482 = $(`<div id="html_2da55d3cf842654d3524d161eaa83482" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>can-1</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_8c6941bc17066f52cb5d6cf0193f90c3.setContent(html_2da55d3cf842654d3524d161eaa83482);
+            
+        
+
+        marker_e6da31e54527b3309da24958abdd1a5c.bindPopup(popup_8c6941bc17066f52cb5d6cf0193f90c3)
+        ;
+
+        
+    
+    
+            marker_e6da31e54527b3309da24958abdd1a5c.bindTooltip(
+                `<div>
+                     Container can-1 (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_e6da31e54527b3309da24958abdd1a5c.setIcon(icon_f3440d5d2a587341f321d1789d1a142d);
+            
+    
+            var marker_4061157887eefe6322fda86dc9aee5ee = L.marker(
+                [36.7538, 3.0588],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_4d3e42446be576a0b0202aaaf7096f40 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_79026b3e2e05076450829b8b4e8e245e = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_71ca9766c9809f19840dcd52cb1bbeed = $(`<div id="html_71ca9766c9809f19840dcd52cb1bbeed" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>can-2</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> CRITICAL</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_79026b3e2e05076450829b8b4e8e245e.setContent(html_71ca9766c9809f19840dcd52cb1bbeed);
+            
+        
+
+        marker_4061157887eefe6322fda86dc9aee5ee.bindPopup(popup_79026b3e2e05076450829b8b4e8e245e)
+        ;
+
+        
+    
+    
+            marker_4061157887eefe6322fda86dc9aee5ee.bindTooltip(
+                `<div>
+                     Container can-2 (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4061157887eefe6322fda86dc9aee5ee.setIcon(icon_4d3e42446be576a0b0202aaaf7096f40);
+            
+    
+            var marker_b51102430211a45f0524dbe343d87644 = L.marker(
+                [36.7538, 3.0588],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_d8d223a350b7eafdc37471d10b807b0c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1c103b4876cd2858c6785bbe815fe9b4 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7cbbda12439274b0db75fabf4d2bae1e = $(`<div id="html_7cbbda12439274b0db75fabf4d2bae1e" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>can-3</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> CRITICAL</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_1c103b4876cd2858c6785bbe815fe9b4.setContent(html_7cbbda12439274b0db75fabf4d2bae1e);
+            
+        
+
+        marker_b51102430211a45f0524dbe343d87644.bindPopup(popup_1c103b4876cd2858c6785bbe815fe9b4)
+        ;
+
+        
+    
+    
+            marker_b51102430211a45f0524dbe343d87644.bindTooltip(
+                `<div>
+                     Container can-3 (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b51102430211a45f0524dbe343d87644.setIcon(icon_d8d223a350b7eafdc37471d10b807b0c);
+            
+    
+            var marker_4b255e8542c996614837f3745e728c65 = L.marker(
+                [36.7246, 2.9719],
+                {
+}
+            ).addTo(marker_cluster_b5350bb2d8c9d5268af7e6407663cc35);
+        
+    
+            var icon_a42994a5ecb23f76eebf4fbe859fb1fd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_545350d5d5243269dc17751b0423f503 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b2d672d441d9d8b5abae5b7e3062ef20 = $(`<div id="html_b2d672d441d9d8b5abae5b7e3062ef20" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>b2b</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_545350d5d5243269dc17751b0423f503.setContent(html_b2d672d441d9d8b5abae5b7e3062ef20);
+            
+        
+
+        marker_4b255e8542c996614837f3745e728c65.bindPopup(popup_545350d5d5243269dc17751b0423f503)
+        ;
+
+        
+    
+    
+            marker_4b255e8542c996614837f3745e728c65.bindTooltip(
+                `<div>
+                     Container b2b (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4b255e8542c996614837f3745e728c65.setIcon(icon_a42994a5ecb23f76eebf4fbe859fb1fd);
+            
+    
+            marker_cluster_b5350bb2d8c9d5268af7e6407663cc35.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
+        
+    
+            var feature_group_23f3d804cc50b003751b4ca1b69a6e93 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_23f3d804cc50b003751b4ca1b69a6e93.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
+        
+    
+            var heat_map_9f0a12aabd93b674f9c2ee55209e5f32 = L.heatLayer(
+                [[36.75, 3.05, 0.0], [36.75, 3.05, 0.0], [36.7204, 3.0873, 0.0], [36.7538, 3.0588, 0.0], [36.7538, 3.0588, 0.0], [36.7538, 3.0588, 0.0], [36.7246, 2.9719, 0.0]],
+                {
+  "minOpacity": 0.3,
+  "maxZoom": 13,
+  "radius": 25,
+  "blur": 15,
+  "gradient": {
+  0.0: "blue",
+  0.3: "cyan",
+  0.5: "lime",
+  0.7: "yellow",
+  1.0: "red",
+},
+}
+            );
+        
+    
+            heat_map_9f0a12aabd93b674f9c2ee55209e5f32.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
+        
+    
+            var feature_group_075233194817000e03dd756db770d46d = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_075233194817000e03dd756db770d46d.addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
+        
+    
+            var layer_control_d97988322a945536739ad93ef5cbdb36_layers = {
                 base_layers : {
-                    "Street Map" : tile_layer_13133cf3fe4631f037f277da62b523ff,
-                    "Satellite" : tile_layer_285d425e7994c77fb01c7558b2a075c2,
+                    "Street Map" : tile_layer_f6dc26d5e54aa62a4db41cc143ea6860,
+                    "Satellite" : tile_layer_89b329e7009561688fa4e02d06e4233c,
                 },
                 overlays :  {
-                    "Zones (\u0645\u0646\u0627\u0637\u0642 \u0627\u0644\u062c\u0645\u0639)" : feature_group_0c4df294fd4be96ed18821a3a2e5fe82,
+                    "Zones (\u0645\u0646\u0627\u0637\u0642 \u0627\u0644\u062c\u0645\u0639)" : feature_group_1174e0eb03a1937357f7493e41c1b7b9,
+                    "Containers (\u062d\u0627\u0648\u064a\u0627\u062a \u0627\u0644\u0646\u0641\u0627\u064a\u0627\u062a)" : marker_cluster_b5350bb2d8c9d5268af7e6407663cc35,
+                    "Routes (\u0645\u0633\u0627\u0631\u0627\u062a \u0627\u0644\u0634\u0627\u062d\u0646\u0627\u062a)" : feature_group_23f3d804cc50b003751b4ca1b69a6e93,
+                    "WPI Heatmap (\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0636\u063a\u0637)" : heat_map_9f0a12aabd93b674f9c2ee55209e5f32,
+                    "Live Tracking (\u062a\u062a\u0628\u0639 \u062d\u064a)" : feature_group_075233194817000e03dd756db770d46d,
                 },
             };
-            let layer_control_49618cb209997938fb87a078b0136acf = L.control.layers(
-                layer_control_49618cb209997938fb87a078b0136acf_layers.base_layers,
-                layer_control_49618cb209997938fb87a078b0136acf_layers.overlays,
+            let layer_control_d97988322a945536739ad93ef5cbdb36 = L.control.layers(
+                layer_control_d97988322a945536739ad93ef5cbdb36_layers.base_layers,
+                layer_control_d97988322a945536739ad93ef5cbdb36_layers.overlays,
                 {
   "position": "topright",
   "collapsed": false,
   "autoZIndex": true,
 }
-            ).addTo(map_430a120884978d6f835bd130b01294ed);
+            ).addTo(map_6b6462cdca62e1cc724a48dc6564a74f);
 
         
 </script>

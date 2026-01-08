@@ -37,10 +37,28 @@ export interface BaselineSchedule {
 }
 
 
+export interface Collector {
+    id: string;
+    name: string;
+    password?: string;
+    phone?: string;
+    truck_id?: string;
+    truck_capacity_kg?: number;
+    status?: string;
+    current_lat?: number;
+    current_lng?: number;
+    shift_start?: string;
+    shift_end?: string;
+    avg_speed_kmh?: number;
+    start_lat?: number;
+    start_lng?: number;
+}
+
 export interface FleetResources {
     daily_collectors: number; // Number of collectors/trucks available per day
     shift_start: string;      // HH:MM format (e.g., "06:00")
     shift_end: string;        // HH:MM format (e.g., "14:00")
+    collectors?: Collector[]; // Actual collectors from DB
 }
 
 // Events are now optional since we auto-detect, but user can still add custom ones
@@ -85,6 +103,7 @@ export interface CollectorRoute {
     collector_id: string;
     stops: Stop[];
     summary: RouteSummary;
+    geometry?: { lat: number; lng: number }[];
 }
 
 export interface TrafficLeg {

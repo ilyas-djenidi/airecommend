@@ -44,12 +44,23 @@ def health_check():
 def root():
     return RedirectResponse(url="/docs")
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Global exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": type(exc).__name__}
+    )
+
 # Register API routers
 from app.api.composition import router as composition_router
 app.include_router(composition_router, tags=["Composition Analysis"])
 
 from app.api.sngid import router as sngid_router
 app.include_router(sngid_router)
+
+from app.api.planner import router as planner_router
+app.include_router(planner_router)
 
 # New Algerian Context Routers
 from app.api.auth import router as auth_router

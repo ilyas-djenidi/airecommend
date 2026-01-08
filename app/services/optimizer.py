@@ -11,6 +11,10 @@ from app.schemas.models import (
 from app.providers.routing import get_routing_provider, Point, MatrixResult
 from app.utils import minutes_to_time_str, time_str_to_minutes
 from app.services.traffic import TrafficService
+from app.routing.graph import RoadGraph
+from app.routing.algorithms import PathFinder
+
+# logger = logging.getLogger(__name__) ... is below
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +22,77 @@ class OptimizerService:
     def __init__(self):
         self.provider = get_routing_provider()
         self.traffic = TrafficService()
+        self.graph = None
+        self.path_finder = None
+        self.is_loading = False
+        self._background_load()
+
+    def _background_load(self):
+        """Start non-blocking background initialization"""
+        import threading
+        if not self.is_loading and self.graph is None:
+            self.is_loading = True
+            thread = threading.Thread(target=self._ensure_graph_loaded)
+            thread.daemon = True
+            thread.start()
+
+    def _ensure_graph_loaded(self):
+        """Lazy load the road graph if needed with caching"""
+        if self.graph is not None:
+            return
+            
+        try:
+            import osmnx as ox
+            from pathlib import Path
+            from app.services.map_service import ALGIERS_CENTER
+            
+            # Cache Setup
+            CACHE_DIR = Path("data/algeria_networks")
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            cache_file = CACHE_DIR / "algiers_drive_12km.graphml"
+            
+            center_point = (ALGIERS_CENTER[0], ALGIERS_CENTER[1])
+            
+            if cache_file.exists():
+                logger.info(f"Loading road graph from cache: {cache_file}")
+                G = ox.load_graphml(cache_file)
+            else:
+                logger.info(f"Downloading OSM network for {center_point} (12km radius)...")
+                G = ox.graph_from_point(center_point, dist=12000, network_type='drive', simplify=True)
+                logger.info(f"Saving road graph to cache: {cache_file}")
+                ox.save_graphml(G, cache_file)
+            
+            self.graph = RoadGraph()
+            
+            # Map OSM nodes to our Node objects
+            for node_id, data in G.nodes(data=True):
+                self.graph.add_node(node_id, data['y'], data['x'])
+                
+            # Map OSM edges to our Edge objects
+            for u, v, data in G.edges(data=True):
+                length = data.get('length', 0)
+                road_type = str(data.get('highway', 'residential'))
+                if isinstance(road_type, list): road_type = road_type[0]
+                
+                max_speed = 30.0 # Default
+                if road_type == 'primary': max_speed = 60.0
+                elif road_type == 'secondary': max_speed = 40.0
+                elif road_type == 'tertiary': max_speed = 35.0
+                
+                self.graph.add_edge(u, v, length_meters=length, 
+                                  road_type=road_type, max_speed_kmh=max_speed)
+            
+            self.graph.build_spatial_index()
+            self.path_finder = PathFinder(self.graph)
+            logger.info("Road graph initialized successfully.")
+            
+        except Exception as e:
+            import traceback
+            logger.error(f"CRITICAL: Failed to initialize road graph: {e}")
+            logger.error(traceback.format_exc())
+            self.path_finder = None
+        finally:
+            self.is_loading = False
 
     def _cluster_containers(self, collectors: List[Collector], containers: List[Container]) -> Dict[str, List[Container]]:
         """
@@ -104,6 +179,9 @@ class OptimizerService:
         return path
 
     def optimize(self, request: OptimizationRequest) -> Tuple[List[Route], List[WarningCode]]:
+        """Main entry point for daily routing optimization"""
+        # No more blocking _ensure_graph_loaded call here
+        
         warnings = []
         routes = []
 
@@ -195,38 +273,40 @@ class OptimizerService:
             total_dist = 0.0
             
             prev_idx = p_to_idx[start_pt.id]
+            route_geometry = []
             
-            # "Route starts from collector start location"
-            # So first leg is Start -> Stop 1
+            # Snap start to graph
+            current_node = self.graph.get_nearest_node(start_pt.lat, start_pt.lng) if self.graph else None
             
             for seq, pt in enumerate(path_points, 1):
                 curr_idx = p_to_idx[pt.id]
                 
-                # Retrieve Matrix Values
+                # Calculate Path Geometry
+                leg_geometry = []
+                if self.path_finder and current_node:
+                    target_node = self.graph.get_nearest_node(pt.lat, pt.lng)
+                    if target_node:
+                        # Use A* to find street path
+                        path_result = self.path_finder.a_star(current_node.id, target_node.id)
+                        if path_result:
+                            leg_geometry = [{"lat": n.lat, "lng": n.lon} for n in path_result.path_nodes]
+                            current_node = target_node
+                
+                # Retrieve Matrix Values (fallback to matrix for travel time/dist)
                 base_travel_min = matrix.durations_min[prev_idx][curr_idx]
                 dist_km = matrix.distances_km[prev_idx][curr_idx]
                 
-                # Apply Traffic Multiplier
-                # "traffic_level should be computed from ETA local time BEFORE applying multiplier"
-                # current_time_min is the DEPARTURE time from previous node
                 multiplier = self.traffic.get_traffic_multiplier(current_time_min)
-                
-                if matrix.provider_name == "OSRMProvider":
-                     # OSRM duration usually includes traffic if configured, but typically it's base profile.
-                     # Requirements say: "traffic... computed... adjusted by traffic multiplier"
-                     # We apply our rule-based multiplier On Top of the matrix duration?
-                     # OSRM 'driving' profile is usually static speeds.
-                     # Yes, prompt says: "adjusted by traffic multiplier"
-                     final_travel_min = math.ceil(base_travel_min * multiplier)
-                else:
-                     # Haversine duration was (dist/speed)*60. 
-                     # Check if we should re-apply multiplier logic if using HaversineProvider?
-                     # HaversineProvider.get_matrix outputted base duration.
-                     final_travel_min = math.ceil(base_travel_min * multiplier)
+                final_travel_min = math.ceil(base_travel_min * multiplier)
 
                 arrival_time = current_time_min + final_travel_min
-                can_service = True # Assume always service for now
                 
+                if not leg_geometry:
+                    # Fallback to straight line if graph not ready
+                    prev_lat = path_points[seq-2].lat if seq > 1 else start_pt.lat
+                    prev_lng = path_points[seq-2].lng if seq > 1 else start_pt.lng
+                    leg_geometry = [{"lat": prev_lat, "lng": prev_lng}, {"lat": pt.lat, "lng": pt.lng}]
+
                 # Add Stop
                 stops.append(Stop(
                     seq=seq,
@@ -236,18 +316,43 @@ class OptimizerService:
                     eta=minutes_to_time_str(arrival_time),
                     travel_min=final_travel_min,
                     service_min=settings.SERVICE_TIME_MIN,
-                    traffic_level=self.traffic.get_traffic_level(multiplier)
+                    traffic_level=self.traffic.get_traffic_level(multiplier),
+                    geometry=leg_geometry
                 ))
+                
+                if leg_geometry:
+                    route_geometry.extend(leg_geometry)
                 
                 total_travel += final_travel_min
                 total_service += settings.SERVICE_TIME_MIN
                 total_dist += dist_km
                 
-                # Advance time (Arrival + Service)
                 current_time_min = arrival_time + settings.SERVICE_TIME_MIN
                 prev_idx = curr_idx
 
-            # Summary
+            # 6. Return to Base (Final Leg)
+            if stops and self.graph and current_node:
+                # Calculate return to start_pt
+                base_node = self.graph.get_nearest_node(start_pt.lat, start_pt.lng)
+                if base_node and base_node.id != current_node.id:
+                    path_result = self.path_finder.a_star(current_node.id, base_node.id)
+                    if path_result:
+                        return_geo = [{"lat": n.lat, "lng": n.lon} for n in path_result.path_nodes]
+                        route_geometry.extend(return_geo)
+                        
+                        # Update stats for return leg
+                        # We use the matrix or direct haversine if matrix index not available for "return" 
+                        # but prev_idx vs start_idx should work.
+                        start_idx = p_to_idx[start_pt.id]
+                        base_travel = matrix.durations_min[prev_idx][start_idx]
+                        base_dist = matrix.distances_km[prev_idx][start_idx]
+                        
+                        multiplier = self.traffic.get_traffic_multiplier(current_time_min)
+                        final_return_min = math.ceil(base_travel * multiplier)
+                        
+                        total_travel += final_return_min
+                        total_dist += base_dist
+                        current_time_min += final_return_min
             overflow = max(0, current_time_min - shift_end_min)
             finish_time = minutes_to_time_str(current_time_min)
             
@@ -264,7 +369,105 @@ class OptimizerService:
                     distance_km=round(total_dist, 2),
                     overflow_min=overflow,
                     finish_time=finish_time
-                )
+                ),
+                geometry=route_geometry if route_geometry else None
             ))
             
         return routes, warnings
+
+    def re_optimize_from_point(self, start_lat: float, start_lng: float, stops: List[Dict]) -> Dict:
+        """
+        AI Re-optimization: Re-sequences stops from a new dynamic starting point.
+        Ensures the nearest stop is visited first.
+        """
+        # No blocking call. Use what's available.
+        if not stops:
+            return {"stops": [], "geometry": []}
+
+        # 1. Prepare Points
+        start_pt = Point("CURRENT_POS", start_lat, start_lng)
+        cont_pts = [Point(s['container_id'], s['lat'], s['lng']) for s in stops]
+        all_pts = [start_pt] + cont_pts
+        
+        # 2. Get Matrix for these points
+        matrix = self.provider.get_matrix(all_pts)
+        p_to_idx = {p.id: i for i, p in enumerate(all_pts)}
+        
+        # 3. Solve TSP from CURRENT_POS
+        path_points = self._tsp_heuristic(start_pt, cont_pts, matrix, p_to_idx)
+        
+        # 4. Rebuild Route with geometries
+        new_stops = []
+        route_geometry = []
+        current_node = self.graph.get_nearest_node(start_lat, start_lng) if self.graph else None
+        
+        total_dist = 0.0
+        total_travel = 0
+        current_time_min = time_str_to_minutes("08:00") # Default starting time for re-opt
+        prev_idx = p_to_idx[start_pt.id]
+
+        for seq, pt in enumerate(path_points, 1):
+            curr_idx = p_to_idx[pt.id]
+            leg_geometry = []
+            
+            if self.path_finder and current_node:
+                target_node = self.graph.get_nearest_node(pt.lat, pt.lng)
+                if target_node:
+                    path_result = self.path_finder.a_star(current_node.id, target_node.id)
+                    if path_result:
+                        leg_geometry = [{"lat": n.lat, "lng": n.lon} for n in path_result.path_nodes]
+                        current_node = target_node
+            
+            base_travel = matrix.durations_min[prev_idx][curr_idx]
+            dist_km = matrix.distances_km[prev_idx][curr_idx]
+            
+            arrival_time = current_time_min + base_travel
+            
+            # Instant Fallback Geometry
+            actual_leg = leg_geometry
+            if not actual_leg:
+                prev_lat = path_points[seq-2].lat if seq > 1 else start_lat
+                prev_lng = path_points[seq-2].lng if seq > 1 else start_lng
+                actual_leg = [{"lat": prev_lat, "lng": prev_lng}, {"lat": pt.lat, "lng": pt.lng}]
+
+            new_stops.append({
+                "seq": seq,
+                "container_id": pt.id,
+                "lat": pt.lat,
+                "lng": pt.lng,
+                "eta": minutes_to_time_str(arrival_time),
+                "travel_min": base_travel,
+                "geometry": actual_leg
+            })
+            
+            if actual_leg:
+                route_geometry.extend(actual_leg)
+                
+            total_dist += dist_km
+            total_travel += base_travel
+            current_time_min = arrival_time + settings.SERVICE_TIME_MIN
+            prev_idx = curr_idx
+
+        # 5. Return to Base (Final Leg for re-opt)
+        if new_stops and self.graph and current_node:
+            base_node = self.graph.get_nearest_node(start_lat, start_lng)
+            if base_node and base_node.id != current_node.id:
+                path_result = self.path_finder.a_star(current_node.id, base_node.id)
+                if path_result:
+                    return_geo = [{"lat": n.lat, "lng": n.lon} for n in path_result.path_nodes]
+                    route_geometry.extend(return_geo)
+                    
+                    start_idx = p_to_idx[start_pt.id]
+                    base_travel = matrix.durations_min[prev_idx][start_idx]
+                    base_dist = matrix.distances_km[prev_idx][start_idx]
+                    
+                    total_travel += base_travel
+                    total_dist += base_dist
+                    current_time_min += base_travel
+
+        return {
+            "stops": new_stops,
+            "geometry": route_geometry,
+            "total_distance_km": round(total_dist, 2),
+            "total_duration_min": total_travel
+        }

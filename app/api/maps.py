@@ -12,6 +12,10 @@ from app.core.supabase import get_supabase_client
 router = APIRouter(prefix="/api/maps", tags=["Maps & Visualization"])
 logger = logging.getLogger(__name__)
 
+# Shared Optimizer Service for routing
+from app.services.optimizer import OptimizerService
+optimizer_service = OptimizerService()
+
 # Ensure maps directory exists
 MAPS_DIR = Path("generated_maps")
 MAPS_DIR.mkdir(exist_ok=True)
@@ -254,3 +258,58 @@ async def export_map_as_image(filename: str):
         "message": "Image export requires browser automation setup",
         "alternative": "Use browser's print-to-PDF or screenshot feature"
     }
+
+@router.get("/route")
+async def get_shortest_road_path(
+    start_lat: float, start_lng: float, 
+    end_lat: float, end_lng: float
+):
+    """
+    Calculate shortest road-aware path between two points in Algiers.
+    Returns geometry as a list of lat/lng coordinates.
+    """
+    try:
+        optimizer_service._ensure_graph_loaded()
+        if not optimizer_service.graph or not optimizer_service.path_finder:
+            raise HTTPException(status_code=503, detail="Road graph not initialized")
+
+        start_node = optimizer_service.graph.get_nearest_node(start_lat, start_lng)
+        end_node = optimizer_service.graph.get_nearest_node(end_lat, end_lng)
+
+        if not start_node or not end_node:
+            raise HTTPException(status_code=400, detail="Could not snap points to road network")
+
+        path_result = optimizer_service.path_finder.a_star(start_node.id, end_node.id)
+        
+        if not path_result:
+            # Fallback to straight line if no path found
+            return {
+                "geometry": [
+                    {"lat": start_lat, "lng": start_lng},
+                    {"lat": end_lat, "lng": end_lng}
+                ],
+                "distance_km": 0, # unknown
+                "fallback": True
+            }
+
+        geometry = [{"lat": n.lat, "lng": n.lon} for n in path_result.path_nodes]
+        
+        return {
+            "geometry": geometry,
+            "distance_km": round(path_result.distance / 1000, 2),
+            "fallback": False
+        }
+
+    except Exception as e:
+        import traceback
+        logger.error(f"Routing error (falling back to straight line) for {start_lat},{start_lng} -> {end_lat},{end_lng}: {e}")
+        logger.error(traceback.format_exc())
+        return {
+            "geometry": [
+                {"lat": start_lat, "lng": start_lng},
+                {"lat": end_lat, "lng": end_lng}
+            ],
+            "distance_km": round(((start_lat-end_lat)**2 + (start_lng-end_lng)**2)**0.5 * 111, 2),
+            "fallback": True,
+            "error": str(e)
+        }

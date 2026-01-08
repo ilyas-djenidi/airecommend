@@ -25,15 +25,22 @@ export class RealDecisionEngine {
             }))
         );
 
-        // Generate collectors based on resources.daily_collectors
-        const collectorCount = this.resources.daily_collectors || 10;
-        const collectors = Array(collectorCount).fill(null).map((_, i) => ({
-            id: `C${i + 1}`,
-            start_lat: depot.lat,
-            start_lng: depot.lng,
-            shift_start: this.resources.shift_start || "08:00",
-            shift_end: this.resources.shift_end || "16:00"
-        }));
+        // Use actual collectors if available, otherwise fallback to generating dummy ones based on daily_collectors count
+        const collectors = (this.resources.collectors && this.resources.collectors.length > 0)
+            ? this.resources.collectors.map(c => ({
+                id: c.id,
+                start_lat: c.start_lat || depot.lat,
+                start_lng: c.start_lng || depot.lng,
+                shift_start: c.shift_start || this.resources.shift_start || "08:00",
+                shift_end: c.shift_end || this.resources.shift_end || "16:00"
+            }))
+            : Array(this.resources.daily_collectors || 10).fill(null).map((_, i) => ({
+                id: `C${i + 1}`,
+                start_lat: depot.lat,
+                start_lng: depot.lng,
+                shift_start: this.resources.shift_start || "08:00",
+                shift_end: this.resources.shift_end || "16:00"
+            }));
 
         const payload: ApiOptimizationRequest = {
             date: startDateStr,
@@ -51,6 +58,7 @@ export class RealDecisionEngine {
         // 2. Call API
         try {
             const response = await api.optimizeDay(payload);
+            const collectorCountUsed = collectors.length;
 
             // 3. Map Response to DailyPlan
             return {
@@ -63,7 +71,7 @@ export class RealDecisionEngine {
                     affected_legs: t.affected_legs.map(l => ({ ...l, traffic_level: l.traffic_level as any }))
                 })),
                 fleet_status: {
-                    trucks_total: collectorCount,
+                    trucks_total: collectorCountUsed,
                     trucks_used: response.routes.length,
                     roles_used: {}
                 },
@@ -104,7 +112,8 @@ export class RealDecisionEngine {
                 distance_km: apiRoute.summary.distance_km,
                 overflow_min: apiRoute.summary.overflow_min,
                 finish_time: apiRoute.summary.finish_time || "N/A"
-            }
+            },
+            geometry: apiRoute.geometry
         };
     }
 }

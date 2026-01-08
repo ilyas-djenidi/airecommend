@@ -31,21 +31,19 @@ class UnassignedContainer(BaseModel):
 # --- Output Components ---
 
 class Stop(BaseModel):
-    seq: int
     container_id: str
+    seq: int
     lat: float
     lng: float
     eta: str
-    travel_min: int
-    service_min: int
     traffic_level: Literal["low", "medium", "high"]
+    geometry: Optional[List[Coordinates]] = None  # Lat/lng path for the leg leading to this stop
 
 class RouteSummary(BaseModel):
     total_travel_min: int
     total_service_min: int
     total_min: int
     distance_km: float
-    # New fields
     overflow_min: int = 0
     finish_time: Optional[str] = None
 
@@ -53,6 +51,7 @@ class Route(BaseModel):
     collector_id: str
     stops: List[Stop]
     summary: RouteSummary
+    geometry: Optional[List[Coordinates]] = None  # Full flattened path geometry for the entire route
 
 class AffectedLeg(BaseModel):
     from_id: str

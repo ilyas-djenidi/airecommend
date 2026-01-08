@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Zone, BaselineSchedule, FleetResources, CalendarEvent, SeasonalConfig, Container } from './models';
+import { Zone, BaselineSchedule, FleetResources, CalendarEvent, SeasonalConfig, Container, Collector } from './models';
 
 interface WasteStore {
     zones: Zone[];
     schedule: BaselineSchedule[];
     resources: FleetResources;
+    collectors: Collector[];
     events: CalendarEvent[];
     seasons: SeasonalConfig;
 
@@ -18,6 +19,7 @@ interface WasteStore {
     addSchedule: (sched: BaselineSchedule) => void;
 
     setResources: (resources: FleetResources) => void;
+    setCollectors: (collectors: Collector[]) => void;
 
     setEvents: (events: CalendarEvent[]) => void;
 
@@ -44,6 +46,7 @@ export const useStore = create<WasteStore>()(
             zones: [],
             schedule: [],
             resources: DEFAULT_RESOURCES,
+            collectors: [],
             events: [],
             seasons: DEFAULT_SEASONS,
 
@@ -57,6 +60,7 @@ export const useStore = create<WasteStore>()(
             })),
 
             setResources: (resources) => set({ resources }),
+            setCollectors: (collectors) => set({ collectors }),
 
             setEvents: (events) => set({ events }),
 

@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_37643ac33e3304b7b9fc67b70e1bba2e {
+                #map_561c098e2689e77d12b9c30a6ce4200b {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -78,7 +78,7 @@
         
             <p style="margin: 5px 0;">
                 <i style="background:#dc2626;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
-                Critical Priority (0)
+                Critical Priority (3)
             </p>
             
             <p style="margin: 5px 0;">
@@ -88,7 +88,7 @@
             
             <p style="margin: 5px 0;">
                 <i style="background:#2563eb;width:20px;height:20px;display:inline-block;border-radius:3px;"></i> 
-                Medium Priority (1)
+                Medium Priority (2)
             </p>
             
             <p style="margin: 5px 0;">
@@ -97,14 +97,14 @@
             </p>
             </div>
     
-            <div class="folium-map" id="map_37643ac33e3304b7b9fc67b70e1bba2e" ></div>
+            <div class="folium-map" id="map_561c098e2689e77d12b9c30a6ce4200b" ></div>
         
 </body>
 <script>
     
     
-            var map_37643ac33e3304b7b9fc67b70e1bba2e = L.map(
-                "map_37643ac33e3304b7b9fc67b70e1bba2e",
+            var map_561c098e2689e77d12b9c30a6ce4200b = L.map(
+                "map_561c098e2689e77d12b9c30a6ce4200b",
                 {
                     center: [36.7538, 3.0588],
                     crs: L.CRS.EPSG3857,
@@ -126,13 +126,13 @@
 
                 }
             );
-            L.control.scale().addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            L.control.scale().addTo(map_561c098e2689e77d12b9c30a6ce4200b);
 
             
 
         
     
-            var tile_layer_6913edbfa4d3e06a978986b99124c1b6 = L.tileLayer(
+            var tile_layer_1d92629a2531fc003072b05f56b4b385 = L.tileLayer(
                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -149,10 +149,10 @@
             );
         
     
-            tile_layer_6913edbfa4d3e06a978986b99124c1b6.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            tile_layer_1d92629a2531fc003072b05f56b4b385.addTo(map_561c098e2689e77d12b9c30a6ce4200b);
         
     
-            var tile_layer_4095e20d2b37a74fdacdcf56f07e3cdc = L.tileLayer(
+            var tile_layer_390712041ea756b8457357cb696878f0 = L.tileLayer(
                 "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
                 {
   "minZoom": 0,
@@ -169,7 +169,7 @@
             );
         
     
-            tile_layer_4095e20d2b37a74fdacdcf56f07e3cdc.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            tile_layer_390712041ea756b8457357cb696878f0.addTo(map_561c098e2689e77d12b9c30a6ce4200b);
         
     
             L.control.fullscreen(
@@ -179,10 +179,10 @@
   "titleCancel": "Exit Full Screen",
   "forceSeparateButton": true,
 }
-            ).addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            ).addTo(map_561c098e2689e77d12b9c30a6ce4200b);
         
     
-            var measure_control_636df31842ee3ff5c687bce073154b8a = new L.Control.Measure(
+            var measure_control_a17b093017aa533664ec794261f492e2 = new L.Control.Measure(
                 {
   "position": "topleft",
   "primaryLengthUnit": "kilometers",
@@ -190,7 +190,7 @@
   "primaryAreaUnit": "square kilometers",
   "secondaryAreaUnit": "acres",
 });
-            map_37643ac33e3304b7b9fc67b70e1bba2e.addControl(measure_control_636df31842ee3ff5c687bce073154b8a);
+            map_561c098e2689e77d12b9c30a6ce4200b.addControl(measure_control_a17b093017aa533664ec794261f492e2);
 
             // Workaround for using this plugin with Leaflet>=1.8.0
             // https://github.com/ljagis/leaflet-measure/issues/171
@@ -209,20 +209,20 @@
 
         
     
-            var feature_group_36e9a7c4e5f0d96c9c9455d15d205a20 = L.featureGroup(
+            var feature_group_536febffbf3c851568c8c576600aacdc = L.featureGroup(
                 {
 }
             );
         
     
-            feature_group_36e9a7c4e5f0d96c9c9455d15d205a20.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            feature_group_536febffbf3c851568c8c576600aacdc.addTo(map_561c098e2689e77d12b9c30a6ce4200b);
         
     
-            var marker_cluster_50133a47f6031015e53c413592e1c8d0 = L.markerClusterGroup(
+            var marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e = L.markerClusterGroup(
                 {
 }
             );
-            marker_cluster_50133a47f6031015e53c413592e1c8d0.options.iconCreateFunction =
+            marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e.options.iconCreateFunction =
                 function(cluster) {
                     var count = cluster.getChildCount();
                     var size = count < 10 ? 'small' : count < 50 ? 'medium' : 'large';
@@ -234,14 +234,14 @@
                 };
         
     
-            var marker_b0ea35e4e0e67f49b44bce35252503b2 = L.marker(
+            var marker_b67451ec775cf8c9dd862eb64baafb66 = L.marker(
                 [36.75, 3.05],
                 {
 }
-            ).addTo(marker_cluster_50133a47f6031015e53c413592e1c8d0);
+            ).addTo(marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e);
         
     
-            var icon_4b781bb38e9821c8fc6a56839962951f = L.AwesomeMarkers.icon(
+            var icon_899609d6822dba134911d4e29c10261d = L.AwesomeMarkers.icon(
                 {
   "markerColor": "blue",
   "iconColor": "white",
@@ -252,24 +252,24 @@
             );
         
     
-        var popup_c878f0ce23f6d2391920c602dbc85c24 = L.popup({
+        var popup_0ee4407e3a0a2961623adc615f30e22c = L.popup({
   "maxWidth": 250,
 });
 
         
             
-                var html_ab1c67128153ddbb92e043e1dcff2c79 = $(`<div id="html_ab1c67128153ddbb92e043e1dcff2c79" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>ss</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
-                popup_c878f0ce23f6d2391920c602dbc85c24.setContent(html_ab1c67128153ddbb92e043e1dcff2c79);
+                var html_49bbf7957e73f8b4e997d15dee41a572 = $(`<div id="html_49bbf7957e73f8b4e997d15dee41a572" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>ss</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_0ee4407e3a0a2961623adc615f30e22c.setContent(html_49bbf7957e73f8b4e997d15dee41a572);
             
         
 
-        marker_b0ea35e4e0e67f49b44bce35252503b2.bindPopup(popup_c878f0ce23f6d2391920c602dbc85c24)
+        marker_b67451ec775cf8c9dd862eb64baafb66.bindPopup(popup_0ee4407e3a0a2961623adc615f30e22c)
         ;
 
         
     
     
-            marker_b0ea35e4e0e67f49b44bce35252503b2.bindTooltip(
+            marker_b67451ec775cf8c9dd862eb64baafb66.bindTooltip(
                 `<div>
                      Container ss (0%)
                  </div>`,
@@ -279,17 +279,17 @@
             );
         
     
-                marker_b0ea35e4e0e67f49b44bce35252503b2.setIcon(icon_4b781bb38e9821c8fc6a56839962951f);
+                marker_b67451ec775cf8c9dd862eb64baafb66.setIcon(icon_899609d6822dba134911d4e29c10261d);
             
     
-            var marker_20ad9b1874c63dc4617794ecbd289fb3 = L.marker(
+            var marker_8ece54ea10012bd6c69a9ad539df3f8b = L.marker(
                 [36.75, 3.05],
                 {
 }
-            ).addTo(marker_cluster_50133a47f6031015e53c413592e1c8d0);
+            ).addTo(marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e);
         
     
-            var icon_6c949318f30aa371690af31e98762d55 = L.AwesomeMarkers.icon(
+            var icon_646b6b6814e34c22c71907fdc7aac2df = L.AwesomeMarkers.icon(
                 {
   "markerColor": "orange",
   "iconColor": "white",
@@ -300,24 +300,24 @@
             );
         
     
-        var popup_c7066a3e7e0bff386c693d9fc8e1e6d4 = L.popup({
+        var popup_f0808bedb11686189874e472ad2e895d = L.popup({
   "maxWidth": 250,
 });
 
         
             
-                var html_e4dad86684c3ef15b0d3b46c205dee67 = $(`<div id="html_e4dad86684c3ef15b0d3b46c205dee67" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>rrrrrrr</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> HIGH</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
-                popup_c7066a3e7e0bff386c693d9fc8e1e6d4.setContent(html_e4dad86684c3ef15b0d3b46c205dee67);
+                var html_034e62ac06ee33f9c2a22f5066693cfa = $(`<div id="html_034e62ac06ee33f9c2a22f5066693cfa" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>rrrrrrr</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> HIGH</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_f0808bedb11686189874e472ad2e895d.setContent(html_034e62ac06ee33f9c2a22f5066693cfa);
             
         
 
-        marker_20ad9b1874c63dc4617794ecbd289fb3.bindPopup(popup_c7066a3e7e0bff386c693d9fc8e1e6d4)
+        marker_8ece54ea10012bd6c69a9ad539df3f8b.bindPopup(popup_f0808bedb11686189874e472ad2e895d)
         ;
 
         
     
     
-            marker_20ad9b1874c63dc4617794ecbd289fb3.bindTooltip(
+            marker_8ece54ea10012bd6c69a9ad539df3f8b.bindTooltip(
                 `<div>
                      Container rrrrrrr (0%)
                  </div>`,
@@ -327,14 +327,206 @@
             );
         
     
-                marker_20ad9b1874c63dc4617794ecbd289fb3.setIcon(icon_6c949318f30aa371690af31e98762d55);
+                marker_8ece54ea10012bd6c69a9ad539df3f8b.setIcon(icon_646b6b6814e34c22c71907fdc7aac2df);
             
     
-            marker_cluster_50133a47f6031015e53c413592e1c8d0.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            var marker_8fe79a01243bc6f3976bad082102bbd0 = L.marker(
+                [36.7204, 3.0873],
+                {
+}
+            ).addTo(marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e);
         
     
-            var heat_map_e5e755ee3a8e78acc9cd7e8479421e44 = L.heatLayer(
-                [[36.75, 3.05, 0.0], [36.75, 3.05, 0.0]],
+            var icon_1784ce2ac7b8bbeab42fc6e43d5f3591 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3141a693d5fab64179effdd17becdaf3 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_1ed3636c281b3b1b39e9dbdf2d187f91 = $(`<div id="html_1ed3636c281b3b1b39e9dbdf2d187f91" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>vvvv</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> CRITICAL</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_3141a693d5fab64179effdd17becdaf3.setContent(html_1ed3636c281b3b1b39e9dbdf2d187f91);
+            
+        
+
+        marker_8fe79a01243bc6f3976bad082102bbd0.bindPopup(popup_3141a693d5fab64179effdd17becdaf3)
+        ;
+
+        
+    
+    
+            marker_8fe79a01243bc6f3976bad082102bbd0.bindTooltip(
+                `<div>
+                     Container vvvv (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8fe79a01243bc6f3976bad082102bbd0.setIcon(icon_1784ce2ac7b8bbeab42fc6e43d5f3591);
+            
+    
+            var marker_9723cdc40d219b79366239e2771d15f4 = L.marker(
+                [36.7538, 3.0588],
+                {
+}
+            ).addTo(marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e);
+        
+    
+            var icon_f1853f6739d92e2fdae94f4802c2215d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b9432fc86aee65f8b7e9230bcd599271 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_1e907745f5776ff12b84f5107eedba04 = $(`<div id="html_1e907745f5776ff12b84f5107eedba04" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>can-1</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> MEDIUM</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_b9432fc86aee65f8b7e9230bcd599271.setContent(html_1e907745f5776ff12b84f5107eedba04);
+            
+        
+
+        marker_9723cdc40d219b79366239e2771d15f4.bindPopup(popup_b9432fc86aee65f8b7e9230bcd599271)
+        ;
+
+        
+    
+    
+            marker_9723cdc40d219b79366239e2771d15f4.bindTooltip(
+                `<div>
+                     Container can-1 (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9723cdc40d219b79366239e2771d15f4.setIcon(icon_f1853f6739d92e2fdae94f4802c2215d);
+            
+    
+            var marker_73f65cba0ab245671ba8eaf9a700ef7d = L.marker(
+                [36.7538, 3.0588],
+                {
+}
+            ).addTo(marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e);
+        
+    
+            var icon_7e1e413bde294c38de6c28d41f5cb706 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_44c605c276d78664439a592e4807d7fe = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_554652de1b362d04774c78094daaa77f = $(`<div id="html_554652de1b362d04774c78094daaa77f" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>can-2</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> CRITICAL</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_44c605c276d78664439a592e4807d7fe.setContent(html_554652de1b362d04774c78094daaa77f);
+            
+        
+
+        marker_73f65cba0ab245671ba8eaf9a700ef7d.bindPopup(popup_44c605c276d78664439a592e4807d7fe)
+        ;
+
+        
+    
+    
+            marker_73f65cba0ab245671ba8eaf9a700ef7d.bindTooltip(
+                `<div>
+                     Container can-2 (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_73f65cba0ab245671ba8eaf9a700ef7d.setIcon(icon_7e1e413bde294c38de6c28d41f5cb706);
+            
+    
+            var marker_bd0ec6fbb22237ad4a2f181807cc8e8c = L.marker(
+                [36.7538, 3.0588],
+                {
+}
+            ).addTo(marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e);
+        
+    
+            var icon_eb90dc253755a5c9e239d426cc05a7c4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "trash",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_99eb09452820f76f50c361041fd7b5a8 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_73e6190a0810a3bc7237687b97bd84ad = $(`<div id="html_73e6190a0810a3bc7237687b97bd84ad" style="width: 100.0%; height: 100.0%;">                         <div dir="rtl" style="font-family: Arial;">                             <h4>can-3</h4>                             <p><b>نسبة الامتلاء:</b> 0%</p>                             <p><b>الأولوية:</b> CRITICAL</p>                             <p><b>الحالة:</b> active</p>                         </div>                         </div>`)[0];
+                popup_99eb09452820f76f50c361041fd7b5a8.setContent(html_73e6190a0810a3bc7237687b97bd84ad);
+            
+        
+
+        marker_bd0ec6fbb22237ad4a2f181807cc8e8c.bindPopup(popup_99eb09452820f76f50c361041fd7b5a8)
+        ;
+
+        
+    
+    
+            marker_bd0ec6fbb22237ad4a2f181807cc8e8c.bindTooltip(
+                `<div>
+                     Container can-3 (0%)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_bd0ec6fbb22237ad4a2f181807cc8e8c.setIcon(icon_eb90dc253755a5c9e239d426cc05a7c4);
+            
+    
+            marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e.addTo(map_561c098e2689e77d12b9c30a6ce4200b);
+        
+    
+            var heat_map_cb72f718907fc23341790b5c9d6da91b = L.heatLayer(
+                [[36.75, 3.05, 0.0], [36.75, 3.05, 0.0], [36.7204, 3.0873, 0.0], [36.7538, 3.0588, 0.0], [36.7538, 3.0588, 0.0], [36.7538, 3.0588, 0.0]],
                 {
   "minOpacity": 0.3,
   "maxZoom": 13,
@@ -351,29 +543,29 @@
             );
         
     
-            heat_map_e5e755ee3a8e78acc9cd7e8479421e44.addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            heat_map_cb72f718907fc23341790b5c9d6da91b.addTo(map_561c098e2689e77d12b9c30a6ce4200b);
         
     
-            var layer_control_ed8d687ace726a96a3db91b16abbe27c_layers = {
+            var layer_control_dd817fc24c5f6b43a748311e3a540410_layers = {
                 base_layers : {
-                    "Street Map" : tile_layer_6913edbfa4d3e06a978986b99124c1b6,
-                    "Satellite" : tile_layer_4095e20d2b37a74fdacdcf56f07e3cdc,
+                    "Street Map" : tile_layer_1d92629a2531fc003072b05f56b4b385,
+                    "Satellite" : tile_layer_390712041ea756b8457357cb696878f0,
                 },
                 overlays :  {
-                    "Zones (\u0645\u0646\u0627\u0637\u0642 \u0627\u0644\u062c\u0645\u0639)" : feature_group_36e9a7c4e5f0d96c9c9455d15d205a20,
-                    "Containers (\u062d\u0627\u0648\u064a\u0627\u062a \u0627\u0644\u0646\u0641\u0627\u064a\u0627\u062a)" : marker_cluster_50133a47f6031015e53c413592e1c8d0,
-                    "WPI Heatmap (\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0636\u063a\u0637)" : heat_map_e5e755ee3a8e78acc9cd7e8479421e44,
+                    "Zones (\u0645\u0646\u0627\u0637\u0642 \u0627\u0644\u062c\u0645\u0639)" : feature_group_536febffbf3c851568c8c576600aacdc,
+                    "Containers (\u062d\u0627\u0648\u064a\u0627\u062a \u0627\u0644\u0646\u0641\u0627\u064a\u0627\u062a)" : marker_cluster_cbe3c31945fcda3847f6d0dc59c6030e,
+                    "WPI Heatmap (\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0636\u063a\u0637)" : heat_map_cb72f718907fc23341790b5c9d6da91b,
                 },
             };
-            let layer_control_ed8d687ace726a96a3db91b16abbe27c = L.control.layers(
-                layer_control_ed8d687ace726a96a3db91b16abbe27c_layers.base_layers,
-                layer_control_ed8d687ace726a96a3db91b16abbe27c_layers.overlays,
+            let layer_control_dd817fc24c5f6b43a748311e3a540410 = L.control.layers(
+                layer_control_dd817fc24c5f6b43a748311e3a540410_layers.base_layers,
+                layer_control_dd817fc24c5f6b43a748311e3a540410_layers.overlays,
                 {
   "position": "topright",
   "collapsed": false,
   "autoZIndex": true,
 }
-            ).addTo(map_37643ac33e3304b7b9fc67b70e1bba2e);
+            ).addTo(map_561c098e2689e77d12b9c30a6ce4200b);
 
         
 </script>

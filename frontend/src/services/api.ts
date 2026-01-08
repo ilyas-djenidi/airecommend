@@ -40,6 +40,7 @@ export interface ApiRoute {
         traffic_level: 'low' | 'medium' | 'high';
     }[];
     summary: ApiRouteSummary;
+    geometry?: { lat: number; lng: number }[];
 }
 
 export interface ApiTrafficLeg {

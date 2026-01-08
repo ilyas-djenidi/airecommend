@@ -23,6 +23,8 @@ export function PlannerPage() {
 
                 if (available) {
                     setDbLoading(true);
+                    const { collectorsApi } = await import('../services/supabaseApi');
+
                     const zones = await zonesApi.list();
                     const zonesWithContainers = await Promise.all(
                         zones.map(async (zone: any) => {
@@ -31,6 +33,9 @@ export function PlannerPage() {
                         })
                     );
                     store.setZones(zonesWithContainers);
+
+                    const collectors = await collectorsApi.list();
+                    store.setCollectors(collectors);
                 }
             } catch (error) {
                 console.error("Failed to sync planner with DB:", error);
@@ -68,12 +73,20 @@ export function PlannerPage() {
                 targetDate.setDate(targetDate.getDate() + dayOffset);
                 const dateStr = targetDate.toISOString().split('T')[0];
 
-                const engine = new RealDecisionEngine(store.zones, store.resources);
+                const engine = new RealDecisionEngine(store.zones, { ...store.resources, collectors: store.collectors });
                 const dailyPlan = await engine.generatePlan(dateStr);
                 generatedPlans.push(dailyPlan);
             }
 
             setPlans(generatedPlans);
+
+            // AUTO-SYNC: Sync to database immediately so drivers see it
+            console.log("Auto-syncing plans to database...");
+            for (const dayPlanned of generatedPlans) {
+                if (dayPlanned.routes.length > 0) {
+                    await publishPlan(dayPlanned, true);
+                }
+            }
         } catch (error) {
             console.error("AI Planning failed:", error);
             alert("Live AI optimization failed. Ensure backend is running at http://localhost:8000");
@@ -96,6 +109,33 @@ export function PlannerPage() {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+    };
+
+    const publishPlan = async (dayPlan: DailyPlan, silent: boolean = false) => {
+        try {
+            if (!silent) setLoading(true);
+            const response = await fetch(`/api/planner/publish`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    date: dayPlan.date,
+                    routes: dayPlan.routes
+                })
+            });
+
+            if (response.ok) {
+                if (!silent) alert(`Plan for ${dayPlan.date} published to collector dashboards!`);
+            } else {
+                const err = await response.json();
+                if (!silent) alert(`Failed to publish: ${err.detail || 'Unknown error'}`);
+                else console.error(`Auto-publish failed for ${dayPlan.date}:`, err);
+            }
+        } catch (error) {
+            console.error("Publish failed:", error);
+            if (!silent) alert("Connection error while publishing.");
+        } finally {
+            if (!silent) setLoading(false);
+        }
     };
 
     const getZoneName = (containerId: string) => {
@@ -163,13 +203,27 @@ export function PlannerPage() {
                                     {day.routes.length} Active Routes
                                 </span>
                             </div>
-                            <div className="text-sm text-slate-500">
+                            <div className="text-sm text-slate-500 flex items-center gap-4">
+                                {day.routes.length > 0 && (
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        className="h-8 text-[10px] bg-blue-600 text-white hover:bg-blue-700 border-none px-2"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            publishPlan(day);
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        Publish to Dashboard
+                                    </Button>
+                                )}
                                 {day.warnings && day.warnings.length > 0 ? (
-                                    <span className="text-red-600 font-bold flex items-center">
+                                    <span className="text-red-600 font-bold flex items-center whitespace-nowrap">
                                         <AlertTriangle size={16} className="mr-1" /> Error
                                     </span>
                                 ) : (
-                                    <span>{day.decisions.filter(d => d.action !== 'SKIP').length} Zones Serviced</span>
+                                    <span className="whitespace-nowrap">{day.decisions.filter(d => d.action !== 'SKIP').length} Zones Serviced</span>
                                 )}
                             </div>
                         </div>

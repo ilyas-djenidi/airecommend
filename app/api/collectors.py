@@ -8,10 +8,14 @@ from datetime import date
 router = APIRouter(prefix="/api/collectors", tags=["Collectors"])
 logger = logging.getLogger(__name__)
 
+from app.services.optimizer import OptimizerService
+optimizer_service = OptimizerService()
+
 # Pydantic Models
 class CollectorBase(BaseModel):
     id: str
     name: str
+    password: Optional[str] = None
     phone: Optional[str] = None
     truck_id: Optional[str] = None
     truck_capacity_kg: Optional[int] = 5000
@@ -19,12 +23,24 @@ class CollectorBase(BaseModel):
     shift_start: Optional[str] = "08:00"
     shift_end: Optional[str] = "16:00"
     avg_speed_kmh: Optional[float] = 25.0
+    # start_lat/lng removed per user request for simplification
+
+
+class CollectorLoginRequest(BaseModel):
+    collector_id: str
+    password: str
+
+class CollectorLoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    collector: dict
 
 class CollectorCreate(CollectorBase):
     user_id: Optional[str] = None
 
 class CollectorUpdate(BaseModel):
     name: Optional[str] = None
+    password: Optional[str] = None
     phone: Optional[str] = None
     truck_id: Optional[str] = None
     truck_capacity_kg: Optional[int] = None
@@ -41,6 +57,42 @@ class Collector(CollectorBase):
     current_lng: Optional[float] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+
+@router.post("/login", response_model=CollectorLoginResponse)
+async def collector_login(credentials: CollectorLoginRequest):
+    """Secure login for collectors"""
+    supabase = get_supabase_client()
+    
+    if not supabase:
+        raise HTTPException(status_code=503, detail="Database service unavailable")
+    
+    try:
+        # Fetch collector by ID
+        result = supabase.table("collectors").select("*").eq("id", credentials.collector_id).execute()
+        
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=401, detail="Invalid collector ID")
+            
+        collector = result.data[0]
+        
+        # Verify password
+        db_password = collector.get('password')
+        if not db_password or db_password != credentials.password:
+             raise HTTPException(status_code=401, detail="Invalid password")
+
+        return CollectorLoginResponse(
+            access_token=f"collector_token_{collector['id']}",
+            collector={
+                "id": collector['id'],
+                "name": collector.get('name', collector['id']),
+                "role": "driver"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login failed: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("", response_model=List[Collector])
 async def list_collectors(status_filter: Optional[str] = None):
@@ -189,6 +241,29 @@ async def update_collector_location(collector_id: str, lat: float, lng: float):
         logger.error(f"Failed to update collector location: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
+def _map_route_data(route: dict) -> dict:
+    """Helper to standardize route data for the frontend"""
+    # Map DB fields to Frontend expected structure for compatibility
+    if "stops" in route:
+        for stop in route["stops"]:
+            # Map 'sequence' -> 'seq'
+            if "sequence" in stop:
+                stop["seq"] = stop["sequence"]
+            elif "seq" in stop:
+                stop["seq"] = stop["seq"] # Already exists, but explicitly ensure it's there
+    
+    # Ensure a 'summary' object exists for frontend consistency
+    if "summary" not in route or not route["summary"]:
+        route["summary"] = {
+            "total_min": route.get("total_duration_min", 0),
+            "distance_km": route.get("total_distance_km", 0),
+            "total_travel_min": route.get("total_duration_min", 0), # Simplified
+            "total_service_min": 0,
+            "overflow_min": 0,
+            "finish_time": "N/A"
+        }
+    return route
+
 @router.get("/{collector_id}/routes")
 async def get_collector_routes(collector_id: str, date_filter: Optional[str] = None):
     """Get routes assigned to a collector, optionally for a specific date"""
@@ -198,7 +273,7 @@ async def get_collector_routes(collector_id: str, date_filter: Optional[str] = N
         return []
     
     try:
-        query = supabase.table("routes").select("*, route_stops(*)").eq("collector_id", collector_id)
+        query = supabase.table("routes").select("*, stops:route_stops(*)").eq("collector_id", collector_id)
         
         if date_filter:
             query = query.eq("date", date_filter)
@@ -208,14 +283,19 @@ async def get_collector_routes(collector_id: str, date_filter: Optional[str] = N
             query = query.eq("date", today)
         
         response = query.execute()
-        return response.data
+        
+        # Apply mapping to all results
+        return [_map_route_data(r) for r in response.data]
+    except Exception as e:
+        logger.error(f"Failed to fetch collector routes: {e}")
+        return []
     except Exception as e:
         logger.error(f"Failed to fetch collector routes: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @router.get("/{collector_id}/today")
-async def get_collector_today_route(collector_id: str):
-    """Get today's route for a collector (convenience endpoint for mobile app)"""
+async def get_collector_today_route(collector_id: str, lat: Optional[float] = None, lng: Optional[float] = None):
+    """Get today's route for a collector. If lat/lng provided, AI will re-optimize from that point."""
     supabase = get_supabase_client()
     
     if not supabase:
@@ -224,12 +304,31 @@ async def get_collector_today_route(collector_id: str):
     try:
         today = date.today().isoformat()
         
-        response = supabase.table("routes").select("*, route_stops(*)").eq("collector_id", collector_id).eq("date", today).execute()
+        # Note: We use route_stops(*) but the frontend expects 'stops'. 
+        # We can either change the frontend or transform the data here.
+        # Let's check how routes are structured in the DB.
+        response = supabase.table("routes").select("*, stops:route_stops(*)").eq("collector_id", collector_id).eq("date", today).execute()
         
         if not response.data:
-            return {"message": "No route assigned for today", "date": today}
+            raise HTTPException(status_code=404, detail=f"No route assigned for today ({today})")
         
-        return response.data[0]
+        route = _map_route_data(response.data[0])
+
+        # AI Dynamic Re-optimization logic
+        if lat is not None and lng is not None and "stops" in route and route["stops"]:
+            logger.info(f"Triggering AI Re-optimization for collector {collector_id} from ({lat}, {lng})")
+            reopt_result = optimizer_service.re_optimize_from_point(lat, lng, route["stops"])
+            
+            # Update route with re-optimized data
+            route["stops"] = reopt_result["stops"]
+            route["geometry"] = reopt_result["geometry"]
+            route["summary"]["distance_km"] = reopt_result["total_distance_km"]
+            route["summary"]["total_min"] = reopt_result["total_duration_min"]
+            route["reoptimized"] = True
+
+        return route
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to fetch today's route: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

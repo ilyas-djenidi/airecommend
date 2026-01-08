@@ -30,6 +30,7 @@ export function ResourcesPage() {
                         />
                         <p className="text-xs text-slate-500 mt-2">
                             Number of collectors/trucks available per day. The AI will distribute collection zones among these collectors for optimal routing.
+                            <strong> Note: To manage specific drivers and their starting locations, use the <a href="/collectors" className="text-blue-600 underline">Manage Collectors</a> page.</strong>
                         </p>
                     </div>
 

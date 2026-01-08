@@ -272,8 +272,13 @@ class AlgerianWasteMapService:
         for idx, route in enumerate(routes):
             color = colors[idx % len(colors)]
             
-            # Extract coordinates from stops
-            coordinates = [[stop['lat'], stop['lng']] for stop in route.get('stops', [])]
+            # Extract coordinates from geometry or stops
+            if route.get('geometry'):
+                # Use provided street-level geometry
+                coordinates = [[pt['lat'], pt['lng']] for pt in route['geometry']]
+            else:
+                # Fallback to straight lines between stops
+                coordinates = [[stop['lat'], stop['lng']] for stop in route.get('stops', [])]
             
             if not coordinates:
                 continue

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, Play, Home, Truck, Brain, Map } from 'lucide-react';
+import { LayoutDashboard, Settings, Play, Home, Truck, Brain, Map, Users } from 'lucide-react';
 import { cn } from './ui';
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -9,6 +9,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { label: 'Home', path: '/', icon: Home },
         { label: 'Configure Inputs', path: '/inputs', icon: Settings },
         { label: 'AI Output (Planner)', path: '/output', icon: Play },
+        { label: 'Manage Collectors', path: '/collectors', icon: Users },
         { label: 'Collector Dashboard', path: '/collector', icon: Truck },
         { label: 'AI Insights', path: '/ai-insights', icon: Brain },
         { label: 'Advanced Maps', path: '/maps', icon: Map },
