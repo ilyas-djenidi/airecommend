@@ -1,26 +1,23 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
     Truck,
     Navigation,
     CheckCircle2,
-    Circle,
-    Play,
-    AlertCircle,
-    LogOut,
     LocateFixed,
     Maximize,
-    ChevronRight,
     Compass,
     MapPin,
     Zap,
     Clock,
-    User
+    BarChart3,
+    Trophy,
+    TrendingUp,
+    Shield
 } from 'lucide-react';
-import { Button, Card, cn } from '../components/ui';
-import { useStore } from '../store';
+import { Button, cn } from '../components/ui';
 import { collectorService } from '../services/collectorService';
 
 // Fix Leaflet icons
@@ -276,8 +273,65 @@ export function CollectorDashboard() {
                 </div>
 
                 {/* Right: Mission Control Panel */}
-                <div className="w-full md:w-[400px] flex flex-col bg-[var(--background)] shrink-0 z-40">
+                <div className="w-full md:w-[450px] flex flex-col bg-[var(--background)] shrink-0 z-40 border-l border-[var(--border)] overflow-hidden">
                     <div className="p-8 flex-1 overflow-y-auto space-y-8 no-scrollbar">
+                        {/* Driver Performance Matrix */}
+                        <section className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--muted-foreground)] flex items-center gap-2">
+                                    <BarChart3 size={12} className="text-[var(--primary)]" /> Performance Matrix
+                                </h3>
+                                <div className="flex items-center gap-2 p-1 px-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <Shield size={10} className="text-emerald-500" />
+                                    <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Active Link</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow group">
+                                    <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 mb-4 group-hover:scale-110 transition-transform">
+                                        <Trophy size={20} />
+                                    </div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rank</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <h4 className="text-2xl font-black text-slate-800 tracking-tighter">Gold</h4>
+                                        <span className="text-[10px] font-bold text-amber-500">#04</span>
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow group">
+                                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Efficiency</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <h4 className="text-2xl font-black text-slate-800 tracking-tighter">94%</h4>
+                                        <span className="text-[10px] font-bold text-emerald-500">+2.4%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900 rounded-[2rem] p-6 text-white relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <Zap size={60} />
+                                </div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Mandate Progress</p>
+                                <div className="flex justify-between items-end mb-4">
+                                    <h4 className="text-3xl font-black tracking-tighter italic">Alpha-0{routeStep + 1}</h4>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-black uppercase text-slate-400">Time Elapsed</p>
+                                        <p className="font-mono text-sm font-bold tracking-tight">02:24:15</p>
+                                    </div>
+                                </div>
+                                <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-[var(--primary)] transition-all duration-1000"
+                                        style={{ width: `${(completedStops.length / (route?.stops.length || 1)) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </section>
+
+                        <div className="h-px bg-slate-100" />
                         {!missionStarted ? (
                             <section className="h-full flex flex-col items-center justify-center text-center space-y-8 py-12">
                                 <div className="w-24 h-24 bg-[var(--primary)]/10 rounded-[2.5rem] flex items-center justify-center text-[var(--primary)] animate-pulse">

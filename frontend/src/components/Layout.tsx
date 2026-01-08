@@ -82,21 +82,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-[#F9FAFB]/30">
-                {/* Header Section */}
-                <header className="h-20 flex items-center justify-between px-8 bg-white border-b border-slate-50 sticky top-0 z-40">
-                    <div className="flex items-center gap-6">
-                        <button className="text-slate-300 hover:text-slate-900 transition-colors p-2 -ml-2">
-                            <Menu size={20} />
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="w-9 h-9 rounded-full bg-[#ECFDF5] border border-[#d1fae5] flex items-center justify-center text-[#047857] font-black text-xs shadow-sm">
-                            M
-                        </div>
-                    </div>
-                </header>
-
                 <main className="flex-1 p-8 lg:p-12">
                     <div className="max-w-[1400px] mx-auto">
                         {children}
