@@ -49,6 +49,10 @@ export const WilayaPerformanceComparator: React.FC<WilayaPerformanceComparatorPr
                 </ResponsiveContainer>
             </div>
 
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase text-slate-400">Reference:</span>
+                <span className="text-[10px] font-black uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-600">SM-GLOBAL</span>
+            </div>
             <div className="mt-4 p-4 bg-blue-50 rounded">
                 <h4 className="font-bold mb-2">رؤى وتحليلات</h4>
                 <ul className="list-disc pr-6 space-y-2 text-sm">

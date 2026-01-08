@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../store';
 import { RealDecisionEngine } from '../realDecisionEngine';
-import { Button, Input, Card } from '../components/ui';
+import { Button, Card, Input, cn } from '../components/ui';
 import { DailyPlan } from '../models';
-import { Download, Copy, RefreshCw, Database, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Database, AlertTriangle, ChevronDown, Clock, MapPin } from 'lucide-react';
 import { DEMO_ZONES, DEMO_SCHEDULE, DEMO_RESOURCES, DEMO_EVENTS, DEMO_SEASONS } from '../demoData';
 
 export function PlannerPage() {
@@ -144,92 +144,94 @@ export function PlannerPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold">AI Planner - Live Optimization</h2>
-                    <p className="text-slate-500">7-day route planning powered by AI backend (real TSP + composition WPI).</p>
+        <div className="space-y-12">
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-[var(--border)]">
+                <div className="space-y-2">
+                    <h2 className="text-4xl lg:text-5xl font-black text-[var(--foreground)] tracking-tight uppercase leading-none">Simulation <span className="text-[var(--primary)]">Vault</span></h2>
+                    <p className="text-[var(--muted-foreground)] font-medium max-w-xl text-sm lg:text-base italic"> Orchestrating 7-day trajectories using Advanced TSP & WPI Composition logic.</p>
                 </div>
-                <div className="flex item-center gap-2">
-                    {dbLoading && <span className="text-xs text-blue-500 animate-pulse flex items-center mr-2">Syncing DB...</span>}
-                    <Input
-                        type="date"
-                        value={startDate}
-                        onChange={e => setStartDate(e.target.value)}
-                        className="w-auto"
-                    />
-                    <Button onClick={runPlanner} disabled={store.zones.length === 0 || loading || dbLoading}>
-                        <RefreshCw size={16} className={`mr-2 inline ${loading ? 'animate-spin' : ''}`} />
-                        {loading ? 'Optimizing...' : 'Generate Plan'}
-                    </Button>
-                    <Button onClick={loadDemoData} variant="secondary" disabled={loading || dbLoading}>
-                        <Database size={16} className="mr-2 inline" />
-                        Load Demo Data
-                    </Button>
-                </div>
-            </div>
-
-            {plans.length > 0 && (
-                <>
-                    <div className="flex gap-2 mb-4">
-                        <Button variant="secondary" onClick={copyJson} className="text-xs">
-                            <Copy size={14} className="mr-2 inline" /> Copy JSON Output
-                        </Button>
-                        <Button variant="secondary" onClick={downloadJson} className="text-xs">
-                            <Download size={14} className="mr-2 inline" /> Download JSON
-                        </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2 bg-[var(--secondary)] p-1 rounded-xl border border-[var(--border)]">
+                        <Input
+                            type="date"
+                            value={startDate}
+                            onChange={e => setStartDate(e.target.value)}
+                            className="w-auto border-none bg-transparent shadow-none font-bold text-xs uppercase tracking-widest"
+                        />
                     </div>
+                    <Button onClick={runPlanner} disabled={store.zones.length === 0 || loading || dbLoading} className="rounded-xl px-6">
+                        <RefreshCw size={16} className={cn("mr-2", loading && "animate-spin")} />
+                        {loading ? 'Synthesizing...' : 'Generate Simulation'}
+                    </Button>
+                    <Button onClick={loadDemoData} variant="outline" disabled={loading || dbLoading} className="rounded-xl">
+                        <Database size={16} className="mr-2" />
+                        Load Archive
+                    </Button>
+                </div>
+            </header>
 
-
-                </>
-            )}
-
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {plans.map((day, idx) => (
-                    <Card key={day.date} className="p-0 overflow-hidden">
+                    <div key={day.date} className="group">
                         <div
-                            className={`p-4 border-b flex justify-between items-center cursor-pointer hover:bg-slate-100 ${day.warnings && day.warnings.length > 0 ? 'bg-red-50' : 'bg-slate-50'}`}
+                            className={cn(
+                                "flex flex-col lg:flex-row items-start lg:items-center justify-between p-8 rounded-[2rem] border transition-all cursor-pointer",
+                                expandedDay === day.date
+                                    ? "bg-[var(--card)] border-[var(--primary)] shadow-2xl shadow-[var(--primary)]/5"
+                                    : "bg-[var(--card)] border-[var(--border)] hover:border-[var(--muted-foreground)]/30"
+                            )}
                             onClick={() => setExpandedDay(expandedDay === day.date ? null : day.date)}
                         >
-                            <div>
-                                <span className="font-bold text-lg mr-3">{day.date}</span>
-                                {/* Holiday Badge */}
-                                {day.decisions.some(d => d.reasoning_trace.event) && (
-                                    <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-bold mr-2">
-                                        Holiday Detected
-                                    </span>
-                                )}
-                                <span className="text-slate-500 text-sm">
-                                    {day.routes.length} Active Routes
-                                </span>
+                            <div className="flex items-center gap-8">
+                                <div className="text-center min-w-[80px]">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--muted-foreground)] mb-1">Index 0{idx + 1}</p>
+                                    <p className="text-3xl font-black text-[var(--foreground)] tracking-tighter leading-none">{day.date.split('-')[2]}</p>
+                                    <p className="text-[10px] font-bold uppercase text-[var(--primary)] mt-1">{new Date(day.date).toLocaleString('default', { month: 'short' })}</p>
+                                </div>
+                                <div className="h-12 w-px bg-[var(--border)] hidden lg:block" />
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="text-xl font-black text-[var(--foreground)] tracking-tight">{day.date}</h3>
+                                        <div className="flex gap-2">
+                                            <span className="px-2 py-0.5 rounded-md bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-black uppercase tracking-widest border border-[var(--primary)]/10">
+                                                {day.routes.length} Bundles
+                                            </span>
+                                            {day.decisions.some(d => d.reasoning_trace.event) && (
+                                                <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 text-[10px] font-black uppercase tracking-widest border border-orange-500/10 flex items-center gap-1">
+                                                    <AlertTriangle size={10} /> Shift Anomaly
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-[var(--muted-foreground)] font-medium">
+                                        {day.decisions.filter(d => d.action !== 'SKIP').length} Municipal Zones currently being serviced.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-sm text-slate-500 flex items-center gap-4">
-                                {day.routes.length > 0 && (
-                                    <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        className="h-8 text-[10px] bg-blue-600 text-white hover:bg-blue-700 border-none px-2"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            publishPlan(day);
-                                        }}
-                                        disabled={loading}
-                                    >
-                                        Publish to Dashboard
-                                    </Button>
-                                )}
-                                {day.warnings && day.warnings.length > 0 ? (
-                                    <span className="text-red-600 font-bold flex items-center whitespace-nowrap">
-                                        <AlertTriangle size={16} className="mr-1" /> Error
-                                    </span>
-                                ) : (
-                                    <span className="whitespace-nowrap">{day.decisions.filter(d => d.action !== 'SKIP').length} Zones Serviced</span>
-                                )}
+
+                            <div className="mt-6 lg:mt-0 flex items-center gap-4 w-full lg:w-auto">
+                                <Button
+                                    variant={day.routes.length > 0 ? 'primary' : 'ghost'}
+                                    className="flex-1 lg:flex-none rounded-2xl h-12 px-6 text-[10px] font-black uppercase tracking-[0.2em]"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        publishPlan(day);
+                                    }}
+                                    disabled={loading || day.routes.length === 0}
+                                >
+                                    Push to Field
+                                </Button>
+                                <div className={cn(
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center transition-transform",
+                                    expandedDay === day.date ? "rotate-180 bg-[var(--primary)] text-white" : "bg-[var(--secondary)] text-[var(--muted-foreground)]"
+                                )}>
+                                    <ChevronDown size={20} />
+                                </div>
                             </div>
                         </div>
 
-                        {(expandedDay === day.date || idx === 0) && (
-                            <div className="p-4 bg-slate-50">
+                        {expandedDay === day.date && (
+                            <div className="mt-4 p-8 lg:p-12 rounded-[2rem] bg-[var(--secondary)]/30 border border-[var(--border)] animate-in fade-in slide-in-from-top-4 duration-300">
                                 {/* WARNINGS SECTION */}
                                 {day.warnings && day.warnings.length > 0 && (
                                     <div className="mb-6 bg-red-100 border border-red-200 text-red-700 p-3 rounded text-sm">
@@ -306,7 +308,7 @@ export function PlannerPage() {
                                 )}
                             </div>
                         )}
-                    </Card>
+                    </div>
                 ))}
             </div>
         </div>

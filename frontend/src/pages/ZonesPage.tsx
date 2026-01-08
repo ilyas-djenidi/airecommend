@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../store';
-import { Button, Input, Card } from '../components/ui';
+import { Button, Input, Card, cn } from '../components/ui';
 import { ZoneCategory, PriorityLabel, Container } from '../models';
-import { Trash2, MapPin, Plus, Box, Database, RefreshCw } from 'lucide-react';
-import { zonesApi, containersApi, checkDatabaseAvailability, syncZonesToDatabase } from '../services/supabaseApi';
+import { Trash2, MapPin, Plus, Box, Settings } from 'lucide-react';
+import { zonesApi, containersApi, checkDatabaseAvailability } from '../services/supabaseApi';
 
 export function ZonesPage() {
     const store = useStore();
@@ -15,8 +15,6 @@ export function ZonesPage() {
 
     // Database state
     const [dbAvailable, setDbAvailable] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [syncing, setSyncing] = useState(false);
 
     // Container Form State
     const [activeZoneForContainer, setActiveZoneForContainer] = useState<string | null>(null);
@@ -34,7 +32,6 @@ export function ZonesPage() {
                 setDbAvailable(available);
 
                 if (available) {
-                    setLoading(true);
                     const zones = await zonesApi.list();
 
                     // Load containers for each zone
@@ -51,7 +48,7 @@ export function ZonesPage() {
             } catch (error) {
                 console.error('Failed to load zones:', error);
             } finally {
-                setLoading(false);
+                // Done loading
             }
         };
 
@@ -143,67 +140,45 @@ export function ZonesPage() {
         }
     };
 
-    const syncToDatabase = async () => {
-        if (!dbAvailable) {
-            alert('Database not available');
-            return;
-        }
-
-        setSyncing(true);
-        try {
-            await syncZonesToDatabase(store.zones);
-            alert('Data synced successfully!');
-        } catch (error) {
-            console.error('Sync failed:', error);
-            alert('Sync failed - check console for details');
-        } finally {
-            setSyncing(false);
-        }
-    };
+    // Auto-sync is handled per-action now
 
     return (
         <div className="space-y-8">
-            {/* DATABASE STATUS BANNER */}
-            <div className={`p-3 rounded-lg border text-sm flex items-center justify-between ${dbAvailable ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                }`}>
-                <div className="flex items-center gap-2">
-                    <Database size={16} />
-                    <span>
-                        {loading ? 'Loading zones from database...' :
-                            dbAvailable ? `Database connected (${store.zones.length} zones loaded)` :
-                                'Database unavailable - using local storage only'}
-                    </span>
-                </div>
-                {dbAvailable && store.zones.length > 0 && (
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={syncToDatabase}
-                        disabled={syncing}
-                        className="text-xs h-7"
-                    >
-                        <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
-                        {syncing ? 'Syncing...' : 'Sync to DB'}
-                    </Button>
-                )}
-            </div>
-
             {/* ADD ZONE FORM */}
-            <Card className="p-6 bg-slate-50 border-slate-200">
-                <h3 className="font-bold text-lg mb-4 text-slate-700">Add New Zone</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Zone ID</label>
-                        <Input placeholder="e.g. ZN-01" value={id} onChange={e => setId(e.target.value)} />
+            <Card className="p-10 border-slate-100 shadow-xl shadow-black/[0.02] rounded-[2rem] bg-slate-50/50">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="p-3 bg-white rounded-2xl shadow-sm">
+                        <Plus className="text-[var(--primary)]" size={24} />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Friendly Name</label>
-                        <Input placeholder="e.g. Casbah Center" value={name} onChange={e => setName(e.target.value)} />
+                        <h3 className="font-black text-2xl text-slate-800 tracking-tighter">Add Intelligence Area</h3>
+                        <p className="text-slate-500 text-sm font-medium">Initialize a new administrative zone for AI dispatch.</p>
                     </div>
-                    <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Category</label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Universal ID</label>
+                        <Input
+                            placeholder="e.g. MS-01"
+                            className="bg-white rounded-xl border-slate-100 h-12 px-4 focus:ring-[var(--primary)]"
+                            value={id}
+                            onChange={e => setId(e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Strategic Name</label>
+                        <Input
+                            placeholder="e.g. M'sila Center"
+                            className="bg-white rounded-xl border-slate-100 h-12 px-4 focus:ring-[var(--primary)]"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Zone Category</label>
                         <select
-                            className="w-full p-2 border rounded-md text-sm bg-white"
+                            className="w-full h-12 px-4 border border-slate-100 rounded-xl text-sm bg-white focus:ring-[var(--primary)] outline-none font-bold text-slate-700"
                             value={category}
                             onChange={e => setCategory(e.target.value as ZoneCategory)}
                         >
@@ -213,110 +188,128 @@ export function ZonesPage() {
                             <option value="OTHER">Other (Hospital/Gov)</option>
                         </select>
                     </div>
-                    <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Priority</label>
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mission Priority</label>
                         <select
-                            className="w-full p-2 border rounded-md text-sm bg-white"
+                            className="w-full h-12 px-4 border border-slate-100 rounded-xl text-sm bg-white focus:ring-[var(--primary)] outline-none font-bold text-slate-700"
                             value={priority}
                             onChange={e => setPriority(e.target.value as PriorityLabel)}
                         >
-                            <option value="CRITICAL">CRITICAL (Must Serve)</option>
-                            <option value="HIGH">HIGH (Market/VIP)</option>
+                            <option value="CRITICAL">CRITICAL (Real-time)</option>
+                            <option value="HIGH">HIGH (Standard High)</option>
                             <option value="MEDIUM">MEDIUM (Standard)</option>
-                            <option value="LOW">LOW (Deferrable)</option>
+                            <option value="LOW">LOW (Optimized Delay)</option>
                         </select>
                     </div>
-                    <div className="md:col-span-2">
-                        <Button onClick={addZone} disabled={!id || !name} className="w-full">
-                            <Plus size={16} className="mr-2" /> Add Zone
+                    <div className="md:col-span-2 pt-2">
+                        <Button
+                            onClick={addZone}
+                            disabled={!id || !name}
+                            className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-[var(--primary)]/10"
+                        >
+                            <Plus size={18} className="mr-2" /> Initialize Zone
                         </Button>
                     </div>
                 </div>
             </Card>
 
             {/* ZONES LIST */}
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-6">
                 {store.zones.map(zone => (
-                    <Card key={zone.id} className="p-0 overflow-hidden border-l-4 border-l-blue-500">
-                        <div className="p-4 flex justify-between items-start bg-white">
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h4 className="font-bold text-lg">{zone.name}</h4>
-                                    <span className="text-xs font-mono bg-slate-100 px-1 rounded text-slate-500">{zone.id}</span>
-                                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded
-                                        ${zone.priority === 'CRITICAL' ? 'bg-red-100 text-red-600' :
-                                            zone.priority === 'HIGH' ? 'bg-orange-100 text-orange-600' :
-                                                'bg-blue-100 text-blue-600'}`}>
-                                        {zone.priority}
-                                    </span>
+                    <div key={zone.id} className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div className="p-8 flex justify-between items-center bg-slate-50/50">
+                            <div className="flex items-center gap-6">
+                                <div className={cn(
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black",
+                                    zone.priority === 'CRITICAL' ? "bg-rose-500 shadow-lg shadow-rose-200" :
+                                        zone.priority === 'HIGH' ? "bg-orange-500 shadow-lg shadow-orange-200" :
+                                            "bg-blue-500 shadow-lg shadow-blue-200"
+                                )}>
+                                    {zone.id.substring(0, 2)}
                                 </div>
-                                <p className="text-sm text-slate-500">{zone.category}</p>
+                                <div>
+                                    <div className="flex items-center gap-3 mb-1">
+                                        <h4 className="font-black text-xl text-slate-800 tracking-tight">{zone.name}</h4>
+                                        <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-full tracking-tighter
+                                            ${zone.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-600' :
+                                                zone.priority === 'HIGH' ? 'bg-orange-100 text-orange-600' :
+                                                    'bg-blue-100 text-blue-600'}`}>
+                                            {zone.priority}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-slate-400 text-xs font-bold">
+                                        <span className="uppercase tracking-widest">{zone.category}</span>
+                                        <span className="w-1 h-1 rounded-full bg-slate-200" />
+                                        <span>{zone.containers?.length || 0} Assets</span>
+                                    </div>
+                                </div>
                             </div>
-                            <Button
-                                variant="secondary"
+                            <button
                                 onClick={() => removeZone(zone.id)}
-                                className="text-red-500 hover:bg-red-50"
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all"
                             >
-                                <Trash2 size={16} />
-                            </Button>
+                                <Trash2 size={18} />
+                            </button>
                         </div>
 
                         {/* CONTAINER MANAGER SECTION */}
-                        <div className="bg-slate-50 p-4 border-t border-slate-100">
-                            <div className="flex justify-between items-center mb-2">
-                                <h5 className="text-xs font-bold uppercase text-slate-500 flex items-center gap-1">
-                                    <Box size={14} /> Containers ({zone.containers?.length || 0})
+                        <div className="p-8 border-t border-slate-100">
+                            <div className="flex justify-between items-center mb-6">
+                                <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                                    <Box size={14} className="text-[var(--primary)]" /> Infrastructure Assets
                                 </h5>
-                                <Button
-                                    size="sm"
-                                    variant="secondary"
+                                <button
                                     onClick={() => setActiveZoneForContainer(activeZoneForContainer === zone.id ? null : zone.id)}
-                                    className="h-7 text-xs"
+                                    className="text-[10px] font-black uppercase tracking-widest text-[var(--primary)] bg-[var(--primary)]/5 px-4 py-2 rounded-xl hover:bg-[var(--primary)]/10 transition-colors"
                                 >
-                                    {activeZoneForContainer === zone.id ? 'Close' : 'Add Container'}
-                                </Button>
+                                    {activeZoneForContainer === zone.id ? 'Discard' : '+ Monitor Unit'}
+                                </button>
                             </div>
 
                             {/* ADD CONTAINER FORM INLINE */}
                             {activeZoneForContainer === zone.id && (
-                                <div className="bg-white p-3 rounded border border-blue-200 mb-3 animate-in fade-in slide-in-from-top-2">
-                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-end">
-                                        <div className="col-span-1">
-                                            <label className="text-[10px] text-slate-400">ID</label>
-                                            <Input className="h-8 text-xs" placeholder="B-101" value={contId} onChange={e => setContId(e.target.value)} />
+                                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-6 animate-in zoom-in-95 duration-200">
+                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
+                                        <div className="col-span-1 space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Unit ID</label>
+                                            <Input className="h-10 text-xs rounded-xl" placeholder="B-101" value={contId} onChange={e => setContId(e.target.value)} />
                                         </div>
-                                        <div>
-                                            <label className="text-[10px] text-slate-400">Priority</label>
-                                            <select className="h-8 w-full border text-xs rounded" value={contPrio} onChange={e => setContPrio(e.target.value as any)}>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weighting</label>
+                                            <select className="h-10 w-full border border-slate-100 rounded-xl text-xs font-bold px-2 bg-white outline-none" value={contPrio} onChange={e => setContPrio(e.target.value as any)}>
                                                 <option value="CRITICAL">Critical</option>
                                                 <option value="HIGH">High</option>
                                                 <option value="MEDIUM">Medium</option>
                                             </select>
                                         </div>
-                                        <div>
-                                            <label className="text-[10px] text-slate-400">Lat</label>
-                                            <Input className="h-8 text-xs" value={contLat} onChange={e => setContLat(e.target.value)} />
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Latitude</label>
+                                            <Input className="h-10 text-xs rounded-xl" value={contLat} onChange={e => setContLat(e.target.value)} />
                                         </div>
-                                        <div>
-                                            <label className="text-[10px] text-slate-400">Lng</label>
-                                            <Input className="h-8 text-xs" value={contLng} onChange={e => setContLng(e.target.value)} />
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Longitude</label>
+                                            <Input className="h-10 text-xs rounded-xl" value={contLng} onChange={e => setContLng(e.target.value)} />
                                         </div>
-                                        <Button onClick={() => addContainer(zone.id)} size="sm" className="h-8">Add</Button>
+                                        <Button onClick={() => addContainer(zone.id)} size="sm" className="h-10 rounded-xl font-black uppercase tracking-widest text-[10px]">Deploy</Button>
                                     </div>
                                 </div>
                             )}
 
                             {/* CONTAINER LIST */}
                             {zone.containers && zone.containers.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                     {zone.containers.map(cont => (
-                                        <div key={cont.id} className="bg-white border text-sm p-2 rounded flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <MapPin size={14} className="text-slate-400" />
-                                                <span className="font-mono font-bold">{cont.id}</span>
-                                                <span className="text-xs text-slate-400">({cont.lat}, {cont.lng})</span>
+                                        <div key={cont.id} className="bg-white border border-slate-100 p-4 rounded-2xl flex justify-between items-center group hover:border-[var(--primary)]/30 transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[var(--primary)]">
+                                                    <MapPin size={14} />
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-slate-800 text-xs tracking-tight">{cont.id}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{cont.lat.toFixed(3)}, {cont.lng.toFixed(3)}</p>
+                                                </div>
                                             </div>
-                                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${cont.priority === 'CRITICAL' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'
+                                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter ${cont.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'
                                                 }`}>
                                                 {cont.priority}
                                             </span>
@@ -324,15 +317,24 @@ export function ZonesPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-xs text-slate-400 italic pl-1">No containers added. Please add containers to enable routing for this zone.</div>
+                                <div className="flex flex-col items-center justify-center py-10 text-slate-300 font-bold italic text-sm border-2 border-dashed border-slate-50 rounded-2xl">
+                                    <Box size={32} className="mb-2 opacity-20" />
+                                    No infrastructure monitoring units detected.
+                                </div>
                             )}
                         </div>
-                    </Card>
+                    </div>
                 ))}
 
                 {store.zones.length === 0 && (
-                    <div className="text-center p-8 text-slate-400 border-2 border-dashed rounded-xl">
-                        No zones configured. Add one manually or load demo data in the "AI Output" tab.
+                    <div className="text-center py-20 bg-slate-50/50 border-2 border-dashed border-slate-100 rounded-[2.5rem] flex flex-col items-center justify-center space-y-4">
+                        <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-200">
+                            <Settings size={32} />
+                        </div>
+                        <div className="max-w-xs">
+                            <h5 className="font-black text-slate-800 text-lg tracking-tight mb-1">Architecture Empty</h5>
+                            <p className="text-slate-400 text-xs font-medium leading-relaxed">No zones configured for this municipality. Initialize your first intelligence area above.</p>
+                        </div>
                     </div>
                 )}
             </div>

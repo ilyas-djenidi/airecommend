@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Button, Input } from '../components/ui';
-import { Brain, TrendingUp, Leaf, Recycle, AlertCircle, ShoppingCart } from 'lucide-react';
+import { Brain, TrendingUp, Leaf, Recycle, AlertCircle, ShoppingCart, Clock } from 'lucide-react';
 import { useStore } from '../store';
 
 interface CompositionAnalysis {
@@ -59,44 +59,46 @@ export function AIInsightsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <div className="flex items-center gap-3 mb-2">
-                    <Brain className="text-purple-600" size={32} />
-                    <div>
-                        <h1 className="text-3xl font-bold">AI Waste Intelligence</h1>
-                        <p className="text-slate-600">Composition Analysis & Decision Insights (AND 2018-2019 Study)</p>
-                    </div>
+        <div className="space-y-12">
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-[var(--border)]">
+                <div className="space-y-2">
+                    <h2 className="text-4xl lg:text-5xl font-black text-[var(--foreground)] tracking-tight uppercase leading-none">Intelligence <span className="text-[var(--primary)]">Deep-Drive</span></h2>
+                    <p className="text-[var(--muted-foreground)] font-medium max-w-xl text-sm lg:text-base italic">Advanced Composition Analysis & Decision Insights synthesized from AND historical archives.</p>
                 </div>
-            </div>
+                <div className="flex flex-wrap items-center gap-3 bg-[var(--secondary)] p-1.5 rounded-2xl border border-[var(--border)]">
+                    <div className="px-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[var(--muted-foreground)] block">Sync Language</label>
+                        <select
+                            className="bg-transparent text-[var(--foreground)] font-bold text-xs border-none focus:ring-0 p-0"
+                            value={language}
+                            onChange={e => setLanguage(e.target.value as 'en' | 'ar' | 'fr')}
+                        >
+                            <option value="en">English (US)</option>
+                            <option value="ar">العربية (DZ)</option>
+                            <option value="fr">Français (FR)</option>
+                        </select>
+                    </div>
+                    <div className="h-8 w-px bg-[var(--border)] mx-2" />
+                    <Button onClick={runAnalysis} disabled={loading} className="rounded-xl px-6">
+                        {loading ? 'Synthesizing...' : 'Run Probe'}
+                    </Button>
+                </div>
+            </header>
 
-            {/* Controls */}
-            <Card className="p-4">
-                <div className="flex gap-4 items-end">
-                    <div className="flex-1">
-                        <label className="block text-sm font-medium mb-1">Analysis Date</label>
+            {/* Analysis Parameters */}
+            <Card className="p-8 bg-[var(--card)] border-[var(--border)] shadow-2xl shadow-black/5 rounded-[2.5rem]">
+                <div className="flex flex-col md:flex-row gap-8 items-end">
+                    <div className="flex-1 space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--muted-foreground)] flex items-center gap-2">
+                            <Clock size={12} /> Temporal Reference
+                        </label>
                         <Input
                             type="date"
                             value={selectedDate}
                             onChange={e => setSelectedDate(e.target.value)}
+                            className="h-12 rounded-xl bg-[var(--secondary)]/50 border-[var(--border)]"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Language</label>
-                        <select
-                            className="border rounded px-3 py-2 bg-white"
-                            value={language}
-                            onChange={e => setLanguage(e.target.value as 'en' | 'ar' | 'fr')}
-                        >
-                            <option value="en">English</option>
-                            <option value="ar">العربية</option>
-                            <option value="fr">Français</option>
-                        </select>
-                    </div>
-                    <Button onClick={runAnalysis} disabled={loading}>
-                        {loading ? 'Analyzing...' : 'Run Analysis'}
-                    </Button>
                 </div>
             </Card>
 
